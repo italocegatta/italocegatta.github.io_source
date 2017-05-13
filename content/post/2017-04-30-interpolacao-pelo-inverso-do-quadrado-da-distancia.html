@@ -26,7 +26,7 @@ coverMeta: out
 <script src="/rmarkdown-libs/Proj4Leaflet/proj4leaflet.js"></script>
 <script src="/rmarkdown-libs/leaflet-binding/leaflet.js"></script>
 
-<p>É comum quando temos um determinado valor distribuido espacialmente e queremos estimá-lo para um ponto específico. Existem inúmeras formas para se chegar nesta estimativa, mas quero mostrar apenas uma neste post. O objetivo é estimar o quanto choveu em Itapetininga-SP, a partir de dados de chuva de outras 6 cidades próximas. Utilizaremos para isso os dados das estações automáticas do <a href="http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesAutomaticas">INMET</a>.</p>
+<p>É comum quando temos um determinado valor distribuído espacialmente e queremos estimá-lo para um ponto específico. Existem inúmeras formas de se chegar nesta estimativa, mas quero mostrar apenas uma neste post. O objetivo é estimar o quanto choveu em Itapetininga-SP, a partir de dados de chuva de outras 6 cidades próximas. Utilizaremos para isso os dados das estações automáticas do <a href="http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesAutomaticas">INMET</a>.</p>
 <p>Primeiro, vamos importar e visualizar os dados que temos disponível.</p>
 <pre class="r"><code>if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
 pacman::p_load(readr, dplyr, leaflet)</code></pre>
@@ -63,8 +63,8 @@ dados</code></pre>
       direction = &quot;bottom&quot;
     )
   )</code></pre>
-<div id="htmlwidget-7f6ba7ce4f5f142fcdf0" style="width:100%;height:500px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-7f6ba7ce4f5f142fcdf0">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[-23.59167,-48.05306,null,null,null,{"clickable":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},null,null,null,null,null,null,null]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573],[21.6,26.72,27.68,14.56,24.64,34.24],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita"],null,["27","33.4","34.6","18.2","30.8","42.8"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-38f791e9fa82c8f59f36" style="width:100%;height:500px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-38f791e9fa82c8f59f36">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[-23.59167,-48.05306,null,null,null,{"clickable":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},null,null,null,null,null,null,null]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573],[21.6,26.72,27.68,14.56,24.64,34.24],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita"],null,["27","33.4","34.6","18.2","30.8","42.8"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script>
 <p>A expressão que define o método é dada abaixo. Basicamente considera-se o valor de cada vizinho ponderado pelo inverso da distância entre ele e o ponto de interesse. Assim, vizinhos distantes contribuem com menos peso para o valor final que vizinhos mais próximos.</p>
 <p><img src="http://bit.ly/2oN3IlI" align="center" border="0" alt="x_{p} =\frac{\sum_{i=1}^n(\frac{1}{d_{i}^{2}}\times x_{i})}{\sum_{i=1}^n(\frac{1}{d_{i}^{2}})}" width="153" height="71" /></p>
 <p>onde: xp = valor interpolado; xi = valor da i-ésimo ponto vizinho; di = distância entre o i-ésimo ponto de vizinho e o ponto de interesse.</p>
@@ -105,8 +105,8 @@ dist</code></pre>
 ## 6       Barra Bonita -48.55757 -22.47121  42.8 135.01301</code></pre>
 <p>O cálculo do IDW é relativamente simples, basta reproduzir a expressão do método.</p>
 <pre class="r"><code>idw &lt;- function(x, dist, na.rm = TRUE) {
-  s1 &lt;-  sum(x / dist, na.rm = na.rm)
-  s2 &lt;-  sum(dist^-1, na.rm = na.rm)
+  s1 &lt;-  sum(x / dist^2, na.rm = na.rm)
+  s2 &lt;-  sum(1 / dist^2, na.rm = na.rm)
 
   return(s1 / s2)
 }</code></pre>
@@ -129,9 +129,9 @@ dados_itape</code></pre>
 ## 4              Avare -48.94100 -23.10175  18.2 105.87726
 ## 5         Piracicaba -47.62332 -22.70313  30.8 108.25070
 ## 6       Barra Bonita -48.55757 -22.47121  42.8 135.01301
-## 7       Itapetininga -48.05306 -23.59167  31.3        NA</code></pre>
-<p>Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetiniga, de acordo com a interpolação por IDW. <br> <br> <div id="htmlwidget-6f8e8c0cc5cb9b322cd8" style="width:100%;height:500px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6f8e8c0cc5cb9b322cd8">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205,-23.59167],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573,-48.05306],[27,33.4,34.6,18.2,30.8,42.8,31.3],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita","Itapetininga"],null,["27","33.4","34.6","18.2","30.8","42.8","31.3"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script></p>
+## 7       Itapetininga -48.05306 -23.59167  32.1        NA</code></pre>
+<p>Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetiniga, de acordo com a interpolação por IDW. <br> <br> <div id="htmlwidget-c081b78a3b96d2559190" style="width:100%;height:500px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c081b78a3b96d2559190">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205,-23.59167],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573,-48.05306],[27,33.4,34.6,18.2,30.8,42.8,32.1],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita","Itapetininga"],null,["27","33.4","34.6","18.2","30.8","42.8","32.1"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script></p>
 <p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contactar por Email.</p>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>##  setting  value                       
@@ -141,20 +141,24 @@ dados_itape</code></pre>
 ##  language (EN)                        
 ##  collate  Portuguese_Brazil.1252      
 ##  tz       America/Sao_Paulo           
-##  date     2017-04-30                  
+##  date     2017-05-13                  
 ## 
 ##  package     * version date       source                           
 ##  assertthat    0.2.0   2017-04-11 CRAN (R 3.3.3)                   
 ##  backports     1.0.5   2017-01-18 CRAN (R 3.3.2)                   
+##  base        * 3.3.3   2017-03-06 local                            
 ##  blogdown      0.0.25  2017-03-23 Github (rstudio/blogdown@1c10d16)
 ##  bookdown      0.3.14  2017-03-23 Github (rstudio/bookdown@f427fdf)
 ##  crosstalk     1.0.0   2016-12-21 CRAN (R 3.3.3)                   
 ##  curl          2.6     2017-04-27 CRAN (R 3.3.3)                   
+##  datasets    * 3.3.3   2017-03-06 local                            
 ##  DBI           0.6-1   2017-04-01 CRAN (R 3.3.3)                   
-##  devtools      1.12.0  2016-06-24 CRAN (R 3.3.3)                   
+##  devtools      1.13.1  2017-05-13 CRAN (R 3.3.3)                   
 ##  digest        0.6.12  2017-01-27 CRAN (R 3.3.2)                   
 ##  dplyr       * 0.5.0   2016-06-24 CRAN (R 3.3.2)                   
 ##  evaluate      0.10    2016-10-11 CRAN (R 3.3.3)                   
+##  graphics    * 3.3.3   2017-03-06 local                            
+##  grDevices   * 3.3.3   2017-03-06 local                            
 ##  hms           0.3     2016-11-22 CRAN (R 3.3.2)                   
 ##  htmltools     0.3.6   2017-04-28 CRAN (R 3.3.3)                   
 ##  htmlwidgets   0.8     2016-11-09 CRAN (R 3.3.3)                   
@@ -165,17 +169,21 @@ dados_itape</code></pre>
 ##  leaflet     * 1.1.0   2017-02-21 CRAN (R 3.3.3)                   
 ##  magrittr      1.5     2014-11-22 CRAN (R 3.3.2)                   
 ##  memoise       1.1.0   2017-04-21 CRAN (R 3.3.3)                   
+##  methods       3.3.3   2017-03-06 local                            
 ##  mime          0.5     2016-07-07 CRAN (R 3.3.2)                   
-##  pacman      * 0.4.1   2016-03-30 CRAN (R 3.3.3)                   
-##  R6            2.2.0   2016-10-05 CRAN (R 3.3.2)                   
+##  pacman      * 0.4.5   2017-05-03 CRAN (R 3.3.3)                   
+##  R6            2.2.1   2017-05-10 CRAN (R 3.3.3)                   
 ##  Rcpp          0.12.10 2017-03-19 CRAN (R 3.3.3)                   
 ##  readr       * 1.1.0   2017-03-22 CRAN (R 3.3.3)                   
 ##  rmarkdown     1.5     2017-04-26 CRAN (R 3.3.3)                   
 ##  rprojroot     1.2     2017-01-16 CRAN (R 3.3.3)                   
 ##  shiny         1.0.3   2017-04-26 CRAN (R 3.3.3)                   
+##  stats       * 3.3.3   2017-03-06 local                            
 ##  stringi       1.1.5   2017-04-07 CRAN (R 3.3.3)                   
 ##  stringr       1.2.0   2017-02-18 CRAN (R 3.3.2)                   
 ##  tibble        1.3.0   2017-04-01 CRAN (R 3.3.3)                   
+##  tools         3.3.3   2017-03-06 local                            
+##  utils       * 3.3.3   2017-03-06 local                            
 ##  withr         1.0.2   2016-06-20 CRAN (R 3.3.3)                   
 ##  xtable        1.8-2   2016-02-05 CRAN (R 3.3.3)                   
 ##  yaml          2.1.14  2016-11-12 CRAN (R 3.3.3)</code></pre>
