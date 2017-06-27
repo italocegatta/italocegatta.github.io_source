@@ -1,0 +1,74 @@
+---
+title: "Como estão as queimadas no Brasil?"
+date: 2017-06-16
+author: Ítalo Cegatta
+tags:
+  - dplyr
+  - ggplot2
+  - geofacet
+  - brmap
+categories:
+  - gráficos
+thumbnailImage: http://i.imgur.com/M5r4L5G.png
+coverImage: http://i.imgur.com/UwMQdpT.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.width = 10, fig.height = 8, dpi = 400
+)
+```
+
+O post de hoje é sobre visualização de dados com dimenções espaciais e multitemporal. O contexto que iremos a bordar está relacionado aos focos de incêndios registrados pelo INPE no [Programa Queimadas Monitoramento por Satélites](http://www.inpe.br/queimadas/situacao-atual). O site é interessante e apresenta algumas estatísticas sobre as queimadas na América do Sul e no Brasil. Iremos trabalhar com a tabela que resume os focos de incêndios por ano e Estado.
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, ggplot2, viridis, scales, sf, geofacet)
+pacman::p_load_gh("italocegatta/brmap")
+```
+
+O primeiro passo foi copiar os dados da pagina e organizá-los no formato [tidy](https://italocegatta.github.io/o-conceito-tidy-data/). Poderíamos fazer uma análise exploratória dos dados para ampliar a interpretação, mas o foco aqui é bem pontual: como mostrar os dados brutos de uma só vez? Ou seja, considerando a dimensão de tempo (ano), geografia (localização do estado) e variável resposta (focos) na mesma visualização
+.
+```{r}
+focos <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/base_incendios.csv")
+
+focos
+```
+
+
+```{r}
+estados_focos <- brmap::estado %>% 
+  left_join(focos, by = c("sigla" = "estado"))
+estados_focos
+```
+
+```{r}
+ggplot(estados_focos) +
+  geom_sf(aes(fill = focos), color = NA) +
+  facet_wrap(~ano) +
+  scale_fill_viridis() +
+  theme_bw()
+```
+
+```{r, fig.height=8}
+ggplot(focos, aes(ano, focos)) +
+  geom_col() +
+  facet_geo(~estado, grid = br_grid1) +
+  labs(
+    x = "Ano", y = "Focos de incêndio (#)"
+  ) +
+  # scale_x_continuous(breaks = seq(1, 12, 1)) +
+  # scale_y_continuous(breaks = seq(100, 600, 200)) +
+  theme_bw() +
+  theme(
+    axis.title = element_text(size = 18),
+    panel.grid.minor.x = element_blank()
+  )
+
+```
+
