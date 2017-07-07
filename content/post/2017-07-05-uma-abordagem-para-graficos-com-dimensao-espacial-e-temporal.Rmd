@@ -1,5 +1,5 @@
 ---
-title: "Como estão as queimadas no Brasil?"
+title: "Uma abordagem para gráficos com dimensão espacial e temporal"
 date: 2017-06-16
 author: Ítalo Cegatta
 tags:
@@ -24,15 +24,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-O post de hoje é sobre visualização de dados com dimenções espaciais e multitemporal. O contexto que iremos a bordar está relacionado aos focos de incêndios registrados pelo INPE no [Programa Queimadas Monitoramento por Satélites](http://www.inpe.br/queimadas/situacao-atual). O site é interessante e apresenta algumas estatísticas sobre as queimadas na América do Sul e no Brasil. Iremos trabalhar com a tabela que resume os focos de incêndios por ano e Estado.
+O post de hoje é sobre visualização de dados com dimensão espacial e temporal. Eventualmente me deparo com esse desafio nas análises do dia a dia e por isso resolvi deixar algumas alternativas para isto resgistradas aqui. O contexto que iremos abordar está relacionado ao banco de dados de focos de incêndios registrados pelo INPE no [Programa Queimadas Monitoramento por Satélites](http://www.inpe.br/queimadas/situacao-atual). O site é interessante e apresenta algumas estatísticas úteis sobre as queimadas na América do Sul e Brasil. Iremos trabalhar com a tabela que resume os focos de incêndios por ano e Estado brasileiro.
 
 ```{r}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, dplyr, ggplot2, viridis, scales, sf, geofacet)
+pacman::p_load(readr, dplyr, ggplot2, viridis, scales, sf, geofacet, gganimate)
 pacman::p_load_gh("italocegatta/brmap")
 ```
 
-O primeiro passo foi copiar os dados da pagina e organizá-los no formato [tidy](https://italocegatta.github.io/o-conceito-tidy-data/). Poderíamos fazer uma análise exploratória dos dados para ampliar a interpretação, mas o foco aqui é bem pontual: como mostrar os dados brutos de uma só vez? Ou seja, considerando a dimensão de tempo (ano), geografia (localização do estado) e variável resposta (focos) na mesma visualização
+O primeiro passo foi copiar os dados da página e organizá-los no formato [tidy](https://italocegatta.github.io/o-conceito-tidy-data/). Poderíamos fazer uma análise exploratória dos dados, mas quero manter o foco em algo bem pontual: como mostrar os dados brutos de uma só vez? Ou seja, considerando a dimensão de tempo (ano), geografia (localização do estado) e variável resposta (focos) na mesma janela gráfica.
 .
 ```{r}
 focos <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/base_incendios.csv")
@@ -42,7 +42,7 @@ focos
 
 
 ```{r}
-estados_focos <- brmap::estado %>% 
+estados_focos <-  %>% 
   left_join(focos, by = c("sigla" = "estado"))
 estados_focos
 ```
