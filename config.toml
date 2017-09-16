@@ -25,6 +25,8 @@ RemovePathAccents = true
 
 publishDir = "../italocegatta.github.io"
 
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+
 [permalinks]
   post = "/:slug/"
 

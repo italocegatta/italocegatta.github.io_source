@@ -36,7 +36,7 @@ Pois bem, para percebermos a dimensão dos dados e qual a variabilidade de cada 
 
 ```{r}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, dplyr, ggplot2, ggthemes, car, agricolae)
+pacman::p_load(readr, dplyr, tibble, ggplot2, ggthemes, car, agricolae)
 ```
 
 ```{r, message=FALSE}
@@ -96,9 +96,10 @@ Para deixar mais visual ainda, podemos construir um gráfico de barras com a mé
 
 ```{r 10-barras-tukey, fig.cap="Médias dos tratamentos. As letras indicam médias estatisticamente iguais pelo teste de Tukey a 5% de significância."}
 tukey$groups %>% 
-  ggplot(aes(reorder(trt, means, function(x) -mean(x)), means)) +
+  rownames_to_column(var = "trt") %>% 
+  ggplot(aes(reorder(trt, volume, function(x) -mean(x)), volume)) +
     geom_bar(stat = "identity") +
-    geom_text(aes(label = M), vjust = 1.8, size = 9, color = "white") +
+    geom_text(aes(label = groups), vjust = 1.8, size = 9, color = "white") +
     labs(x = "Progênies", y = "Médias") +
     theme_few()
 ```

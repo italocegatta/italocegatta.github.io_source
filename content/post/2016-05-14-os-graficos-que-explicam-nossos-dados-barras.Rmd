@@ -122,21 +122,20 @@ ggplot(total_trat, aes(Tratamento, Galhas)) +
   theme_few()
 ```
 
-Para a próxima figura temos de criar uma coluna que informa a posição em que o valor deve ficar no eixo y, uma vez que ele deve estar exatamente no centro do respectivo compartimento da barra. Como resultado temos a  Figura \@ref(fig:5-bar-local-annot).
+Também é fácil indicar o número de galhas por local nas barras. A função `position_stack()` é responsável por colocar o texto no topo de cada compartimento colorido. Para ficar mais atraente, podemos adicionar um parâmetro para que o texto fique 20% a baixo do topo do compartimento. Como resultado temos a  Figura \@ref(fig:5-bar-local-annot).
 
 ```{r 5-bar-local-annot, fig.cap="Número total de galhas de cada tratamento em diferentes locais com o valor da respectiva barra - níveis agrupados."}
 # Cria uma nova coluna que contem a posição no eixo y que corresponde ao centro
 # da barra. Esta posição correnponde ao local onde o label de cada barra
 # será mostrado
 
-total_trat_local_y <- total_trat_local %>%
-  mutate(Galhas_y = replace(cumsum(Galhas) - (0.5*Galhas),
-    Galhas  ==  0, NA))
-
-ggplot(total_trat_local_y, aes(Tratamento, Galhas, fill = Local)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = Galhas, y = Galhas_y)) +
-  theme_few() +
+ggplot(total_trat_local, aes(Tratamento, Galhas, fill = Local)) +
+    geom_col() +
+    geom_text(
+      aes(label = Galhas),
+      position =  position_stack(vjust = 0.8), vjust = 1
+    ) +
+    theme_few() +
   scale_fill_brewer(palette = "Spectral")
 ```
 
