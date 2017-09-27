@@ -1,0 +1,94 @@
+---
+title: "Grid regular sobre polígonos com pacote sf"
+date: 2017-07-29
+author: Ítalo Cegatta
+draft: true
+tags:
+  - dplyr
+  - brmap
+  - ggplot2
+  - sf
+categories:
+  - Gráfico
+thumbnailImage: http://i.imgur.com/1gZcM9L.png
+coverImage: http://i.imgur.com/d1eBDPc.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.width = 12, fig.height = 6, dpi = 400
+)
+```
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, ggplot2, sf)
+pacman::p_load_gh("italocegatta/brmap")
+```
+
+
+```{r}
+grid <- st_make_grid(brmap_brasil, cellsize = 5) %>% 
+  st_sf()
+
+st_bbox(brmap_brasil)
+ggplot() + 
+  geom_sf(data = brmap_brasil) +
+  geom_sf(data = grid, fill = NA) +
+  theme_bw()
+```
+
+```{r}
+intersects <- st_intersects(grid, brmap_brasil, F) %>% as.vector()
+
+grid_intersects <- filter(grid, intersects) %>% 
+  st_cast("POLYGON") 
+
+ggplot() + 
+  geom_sf(data = brmap_brasil) +
+  geom_sf(data = grid_intersects, fill =NA) +
+  theme_bw()
+```
+
+```{r}
+grid_intersection <- st_intersection(grid_intersects, brmap_brasil) %>% 
+  st_cast("MULTIPOLYGON")
+
+ggplot() + 
+  geom_sf(data = brmap_brasil) +
+  geom_sf(data = grid_intersection, fill =NA) +
+  theme_bw()
+```
+
+```{r}
+focos <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/base_incendios.csv") %>% 
+  filter(ano == 2016)
+
+focos
+```
+```{r}
+focos_sf <- focos %>% 
+  left_join(brmap_estado, by = "sigla") %>% 
+  st_sf()
+
+ggplot(focos_sf) +
+  geom_sf(aes(fill = focos)) +
+  geom_sf(data = grid_intersection, fill =NA, color = "black") +
+  scale_fill_viridis_c() +
+  theme_bw()
+```
+
+```{r}
+focos_interpolado <- st_interpolate_aw(focos_sf["focos"], grid_intersection, extensive = FALSE)
+
+ggplot(focos_interpolado ) +
+  geom_sf(aes(fill = focos)) +
+  scale_fill_viridis_c() +
+  theme_bw()
+```
+
