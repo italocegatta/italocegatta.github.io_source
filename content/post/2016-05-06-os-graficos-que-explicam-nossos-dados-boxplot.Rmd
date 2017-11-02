@@ -128,7 +128,7 @@ ggplot(total_coleta, aes(Tratamento, Galhas)) +
 
 É importante destacar que o gráfico da Figura \@ref(fig:4-boxplot-coleta) não é adequado para esse tipo de informação. Nesse caso seria mais interessante um gráfico de linhas em que cada linha representa um tratamento (veremos esse gráfico em um futuro post).
 
-Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contactar por Email.
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
 devtools::session_info()

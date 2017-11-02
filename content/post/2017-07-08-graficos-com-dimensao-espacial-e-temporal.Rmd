@@ -113,7 +113,7 @@ animation::ani.options(interval = 1,ani.width = 1000, ani.height = 600)
 
 <a href="http://imgur.com/KoLpSsF"><img src="http://i.imgur.com/KoLpSsF.gif" style="width:100%" /></a>
 
-Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contactar por Email.
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
 devtools::session_info()

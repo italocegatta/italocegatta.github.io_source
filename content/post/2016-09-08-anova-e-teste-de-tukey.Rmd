@@ -104,7 +104,7 @@ tukey$groups %>%
     theme_few()
 ```
 
-Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contactar por Email.
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
 devtools::session_info()
