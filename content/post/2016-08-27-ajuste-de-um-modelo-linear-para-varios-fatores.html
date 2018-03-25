@@ -1,0 +1,277 @@
+---
+title: Ajuste de um modelo linear para vários fatores
+date: 2016-08-27
+author: Ítalo Cegatta
+tags:
+  - readr
+  - dplyr
+  - tidyr
+  - broom
+  - purrr
+  - ggplot2
+categories:
+  - Modelos
+  - Gráficos
+thumbnailImage: http://i.imgur.com/49gZOJL.png
+coverImage: http://i.imgur.com/SxgnspJ.png
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+
+
+<p>Ajustar um modelo linear ou não linear é algo relativamente simples no R. Mas em muitos casos precisamos ajustá-lo para vários fatores e dependendo da quantidade isso se torna uma tarefa chata. Se você, assim como eu, já precisou fazer isso no Excel, sabe o que é perder mais que uma tarde copiando e colando informações entres abas e planilhas.<br />
+<!-- more --></p>
+<p>Mas felizmente existe uma máxima muito interessante entre programadores que é:</p>
+<blockquote>
+<p>Don’t Repeat Yourself (DRY)</p>
+</blockquote>
+<p>Depois que eu percebi o quanto a repetição humana gera erros, abracei totalmente o conceito DRY. Acreditem, vocês serão muito mais felizes e eficientes deixando o computador fazer as tarefas repetitivas e chatas.</p>
+<p>Para exemplificar, vamos fazer algo muito comum nas ciências florestais, que é predizer as alturas das árvores. Medir a altura da árvore é uma atividade laboriosa, e há muito tempo se sabe que a altura total das árvores possui alta correlação com o seu diâmetro.</p>
+<p>Utilizaremos mais uma vez os dados do <a href="www.projetotume.com">Projeto TUME</a>, referente a medição de 24 meses do TUME 55 plantado no Mato Grosso do Sul.</p>
+<pre class="r"><code>if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(readr, dplyr, tidyr, broom, purrr, ggplot2)</code></pre>
+<pre class="r"><code>dados &lt;- read_csv2(
+  &quot;https://github.com/italocegatta/italocegatta.github.io_source/raw/master/content/dados/tume_55_24.csv&quot;
+)
+
+dados</code></pre>
+<pre><code>## # A tibble: 1,881 x 9
+##    N_tume I_meses Esp          Parc_m2 N_arv DAP_cm   H_m   Cod  Cod2
+##     &lt;int&gt;   &lt;int&gt; &lt;chr&gt;          &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
+##  1     55      24 E_botryoides    600.     1   4.10  6.50    NA    NA
+##  2     55      24 E_botryoides    600.     2   9.70  8.00    NA    NA
+##  3     55      24 E_botryoides    600.     3  NA    NA        5    NA
+##  4     55      24 E_botryoides    600.     4   7.60  7.50     2    NA
+##  5     55      24 E_botryoides    600.     5   3.80  5.00    NA    NA
+##  6     55      24 E_botryoides    600.     6  NA    NA        1    NA
+##  7     55      24 E_botryoides    600.     7  12.6   9.00     6    NA
+##  8     55      24 E_botryoides    600.     8  NA    NA        1    NA
+##  9     55      24 E_botryoides    600.     9   7.00  8.00    NA    NA
+## 10     55      24 E_botryoides    600.    10   7.50  7.50    NA    NA
+## # ... with 1,871 more rows</code></pre>
+<p>Nosso objetivo é simples: ajustar um modelo hipsométrico para cada espécie e em seguida predizer as alturas das árvores. A Figura <a href="#fig:9-dap-h">1</a> mostra a relação que teríamos se fosse ajustado apenas um modelo para todas as espécies.</p>
+<pre class="r"><code>ggplot(dados, aes(DAP_cm, H_m)) +
+  geom_point(alpha=0.4) +
+  geom_smooth(method=&quot;lm&quot;) +
+  theme_bw()</code></pre>
+<div class="figure"><span id="fig:9-dap-h"></span>
+<img src="/post/2016-08-27-ajuste-de-um-modelo-linear-para-varios-fatores_files/figure-html/9-dap-h-1.png" alt="Relação entre o diâmetro e a altura sem destinção de espécie." width="4000" />
+<p class="caption">
+Figura  1: Relação entre o diâmetro e a altura sem destinção de espécie.
+</p>
+</div>
+<p>Mas na prática, a relação diâmetro-altura é diferente entre espécie, como pode ser notado na Figura <a href="#fig:9-dap-h-spp">2</a>. Talvez fique mais evidente a diferença observando os coeficientes dos modelos que serão ajustados a seguir.</p>
+<pre class="r"><code>ggplot(dados, aes(DAP_cm, H_m)) +
+  geom_point(alpha=0.4) +
+  geom_smooth(method=&quot;lm&quot;) +
+  facet_wrap(~Esp) +
+  theme_bw()</code></pre>
+<div class="figure"><span id="fig:9-dap-h-spp"></span>
+<img src="/post/2016-08-27-ajuste-de-um-modelo-linear-para-varios-fatores_files/figure-html/9-dap-h-spp-1.png" alt="Relação entre o diâmetro e a altura por espécie." width="4000" />
+<p class="caption">
+Figura  2: Relação entre o diâmetro e a altura por espécie.
+</p>
+</div>
+<p>A primeira etapa é entender que um data.frame pode conter vários tipos de elementos, como números, caracteres, listas e também outros data.frames. Para isso utilizaremos a função <code>nest()</code> do pacote <code>tidyr</code> e aninharemos os dados em função das espécies.</p>
+<pre class="r"><code>dados %&gt;%
+  group_by(Esp) %&gt;% 
+  nest()</code></pre>
+<pre><code>## # A tibble: 24 x 2
+##    Esp                     data             
+##    &lt;chr&gt;                   &lt;list&gt;           
+##  1 E_botryoides            &lt;tibble [80 x 8]&gt;
+##  2 E_brassiana             &lt;tibble [80 x 8]&gt;
+##  3 E_camaldulensis         &lt;tibble [80 x 8]&gt;
+##  4 E_citriodora            &lt;tibble [80 x 8]&gt;
+##  5 E_cloeziana             &lt;tibble [51 x 8]&gt;
+##  6 E_dunnii_urophylla      &lt;tibble [80 x 8]&gt;
+##  7 E_exserta               &lt;tibble [80 x 8]&gt;
+##  8 E_grandis_AT            &lt;tibble [80 x 8]&gt;
+##  9 E_grandis_camaldulensis &lt;tibble [80 x 8]&gt;
+## 10 E_grandis_CH            &lt;tibble [80 x 8]&gt;
+## # ... with 14 more rows</code></pre>
+<p>Agora podemos ajustar um modelo de regressão para cada espécie utilizando a função <code>map</code>,do pacote <code>purrr</code>. Podemos ainda extrair as informações desses modelos com as funções <code>glance</code>, <code>tidy</code> e <code>augment</code>, do pacote <code>broom</code>.</p>
+<pre class="r"><code>dados_modl &lt;- dados %&gt;%
+  group_by(Esp) %&gt;% 
+  nest() %&gt;% 
+  mutate(
+    ajuste = data %&gt;% map(~ lm(log(H_m) ~ I(1/DAP_cm), data = .)),
+    resumo = map(ajuste, glance),
+    coef = map(ajuste, tidy),
+    resid = map(ajuste, augment)
+  )
+
+dados_modl</code></pre>
+<pre><code>## # A tibble: 24 x 6
+##    Esp                     data              ajuste   resumo  coef   resid
+##    &lt;chr&gt;                   &lt;list&gt;            &lt;list&gt;   &lt;list&gt;  &lt;list&gt; &lt;lis&gt;
+##  1 E_botryoides            &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  2 E_brassiana             &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  3 E_camaldulensis         &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  4 E_citriodora            &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  5 E_cloeziana             &lt;tibble [51 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  6 E_dunnii_urophylla      &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  7 E_exserta               &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  8 E_grandis_AT            &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+##  9 E_grandis_camaldulensis &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+## 10 E_grandis_CH            &lt;tibble [80 x 8]&gt; &lt;S3: lm&gt; &lt;data.~ &lt;data~ &lt;dat~
+## # ... with 14 more rows</code></pre>
+<p>Da mesma forma que aninhamos os dados por espécie, podemos retorná-los para o formato original, mas agora mostrando apenas as informações que realmente interessam.</p>
+<pre class="r"><code>dados_modl %&gt;%
+  select(Esp, resumo) %&gt;% 
+  unnest(resumo)</code></pre>
+<pre><code>## # A tibble: 24 x 12
+##    Esp      r.squared adj.r.squared  sigma statistic  p.value    df logLik
+##    &lt;chr&gt;        &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;
+##  1 E_botry~     0.787         0.783 0.136      236.  3.85e-23     2   38.9
+##  2 E_brass~     0.703         0.698 0.160      140.  3.26e-17     2   26.2
+##  3 E_camal~     0.719         0.716 0.128      195.  1.14e-22     2   50.8
+##  4 E_citri~     0.602         0.596 0.102      101.  4.98e-15     2   60.4
+##  5 E_cloez~     0.260         0.234 0.167       10.2 3.42e- 3     2   12.5
+##  6 E_dunni~     0.720         0.716 0.161      180.  5.03e-21     2   30.3
+##  7 E_exser~     0.590         0.584 0.196       99.2 5.52e-15     2   16.1
+##  8 E_grand~     0.747         0.744 0.0772     225.  2.12e-24     2   90.1
+##  9 E_grand~     0.829         0.827 0.161      325.  2.11e-27     2   29.2
+## 10 E_grand~     0.776         0.773 0.105      233.  1.75e-23     2   58.8
+## # ... with 14 more rows, and 4 more variables: AIC &lt;dbl&gt;, BIC &lt;dbl&gt;,
+## #   deviance &lt;dbl&gt;, df.residual &lt;int&gt;</code></pre>
+<pre class="r"><code>dados_modl %&gt;%
+  select(Esp, coef ) %&gt;% 
+  unnest(coef)</code></pre>
+<pre><code>## # A tibble: 48 x 6
+##    Esp             term        estimate std.error statistic  p.value
+##    &lt;chr&gt;           &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 E_botryoides    (Intercept)     2.63    0.0422     62.3  5.04e-59
+##  2 E_botryoides    I(1/DAP_cm)    -4.13    0.269     -15.4  3.85e-23
+##  3 E_brassiana     (Intercept)     2.01    0.0511     39.4  4.39e-44
+##  4 E_brassiana     I(1/DAP_cm)    -2.37    0.201     -11.8  3.26e-17
+##  5 E_camaldulensis (Intercept)     2.73    0.0461     59.2  2.33e-65
+##  6 E_camaldulensis I(1/DAP_cm)    -4.79    0.343     -14.0  1.14e-22
+##  7 E_citriodora    (Intercept)     2.55    0.0551     46.3  1.31e-52
+##  8 E_citriodora    I(1/DAP_cm)    -3.80    0.378     -10.1  4.98e-15
+##  9 E_cloeziana     (Intercept)     2.32    0.116      20.1  1.50e-18
+## 10 E_cloeziana     I(1/DAP_cm)    -2.84    0.892      -3.19 3.42e- 3
+## # ... with 38 more rows</code></pre>
+<pre class="r"><code>dados_modl %&gt;%
+  select(Esp, resid) %&gt;% 
+  unnest(resid)</code></pre>
+<pre><code>## # A tibble: 1,633 x 11
+##    Esp      .rownames log.H_m. I.1.DAP_cm. .fitted .se.fit   .resid   .hat
+##    &lt;chr&gt;    &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+##  1 E_botry~ 1             1.87      0.244     1.63  0.0317  0.246   0.0539
+##  2 E_botry~ 2             2.08      0.103     2.21  0.0201 -0.128   0.0217
+##  3 E_botry~ 4             2.01      0.132     2.09  0.0171 -0.0751  0.0158
+##  4 E_botry~ 5             1.61      0.263     1.55  0.0361  0.0628  0.0702
+##  5 E_botry~ 7             2.20      0.0794    2.31  0.0242 -0.108   0.0315
+##  6 E_botry~ 9             2.08      0.143     2.04  0.0168  0.0360  0.0152
+##  7 E_botry~ 10            2.01      0.133     2.08  0.0170 -0.0678  0.0156
+##  8 E_botry~ 13            1.61      0.167     1.95  0.0178 -0.336   0.0171
+##  9 E_botry~ 14            2.30      0.0980    2.23  0.0209  0.0741  0.0234
+## 10 E_botry~ 15            2.14      0.120     2.14  0.0180  0.00425 0.0173
+## # ... with 1,623 more rows, and 3 more variables: .sigma &lt;dbl&gt;,
+## #   .cooksd &lt;dbl&gt;, .std.resid &lt;dbl&gt;</code></pre>
+<p>Após o ajuste do modelo, temos de predizer as alturas. O único adendo para esse comando é que precisamos fazer em duas etapas, uma utilizando a função <code>predict</code> e outra para trazer o valor predito para a escala natural, pois o modelo foi ajustado na escala logarítmica.</p>
+<pre class="r"><code>dados_pred &lt;- dados_modl %&gt;% 
+  mutate(
+    hpred = map2(ajuste, data, predict),
+    hpred = map(hpred, exp)
+  ) %&gt;%
+  select(Esp, data, hpred)</code></pre>
+<p>Por fim, temos de volta um data.frame com as alturas preditas. Por mais que o ajuste tenha ficado razoável, na prática a construção de modelos de relação hipsométrica envolvem outras etapas e um maior rigor em termos estatísticos.</p>
+<pre class="r"><code>dados_compl &lt;- dados_pred %&gt;%
+  unnest(hpred, data)
+
+dados_compl</code></pre>
+<pre><code>## # A tibble: 1,881 x 10
+##    Esp         hpred N_tume I_meses Parc_m2 N_arv DAP_cm   H_m   Cod  Cod2
+##    &lt;chr&gt;       &lt;dbl&gt;  &lt;int&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
+##  1 E_botryoid~  5.08     55      24    600.     1   4.10  6.50    NA    NA
+##  2 E_botryoid~  9.09     55      24    600.     2   9.70  8.00    NA    NA
+##  3 E_botryoid~ NA        55      24    600.     3  NA    NA        5    NA
+##  4 E_botryoid~  8.08     55      24    600.     4   7.60  7.50     2    NA
+##  5 E_botryoid~  4.70     55      24    600.     5   3.80  5.00    NA    NA
+##  6 E_botryoid~ NA        55      24    600.     6  NA    NA        1    NA
+##  7 E_botryoid~ 10.0      55      24    600.     7  12.6   9.00     6    NA
+##  8 E_botryoid~ NA        55      24    600.     8  NA    NA        1    NA
+##  9 E_botryoid~  7.72     55      24    600.     9   7.00  8.00    NA    NA
+## 10 E_botryoid~  8.03     55      24    600.    10   7.50  7.50    NA    NA
+## # ... with 1,871 more rows</code></pre>
+<p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.</p>
+<pre class="r"><code>devtools::session_info()</code></pre>
+<pre><code>##  setting  value                       
+##  version  R version 3.4.3 (2017-11-30)
+##  system   x86_64, mingw32             
+##  ui       RTerm                       
+##  language (EN)                        
+##  collate  Portuguese_Brazil.1252      
+##  tz       America/Sao_Paulo           
+##  date     2018-03-24                  
+## 
+##  package    * version    date       source                            
+##  assertthat   0.2.0      2017-04-11 CRAN (R 3.4.3)                    
+##  backports    1.1.2      2017-12-13 CRAN (R 3.4.3)                    
+##  base       * 3.4.3      2017-12-06 local                             
+##  bindr        0.1.1      2018-03-13 CRAN (R 3.4.4)                    
+##  bindrcpp   * 0.2        2017-06-17 CRAN (R 3.4.3)                    
+##  blogdown     0.5        2018-01-24 CRAN (R 3.4.4)                    
+##  bookdown     0.7        2018-02-18 CRAN (R 3.4.4)                    
+##  broom      * 0.4.3      2017-11-20 CRAN (R 3.4.3)                    
+##  cli          1.0.0      2017-11-05 CRAN (R 3.4.3)                    
+##  colorspace   1.3-2      2016-12-14 CRAN (R 3.4.3)                    
+##  compiler     3.4.3      2017-12-06 local                             
+##  crayon       1.3.4      2017-09-16 CRAN (R 3.4.3)                    
+##  curl         3.1        2017-12-12 CRAN (R 3.4.3)                    
+##  datasets   * 3.4.3      2017-12-06 local                             
+##  devtools     1.13.5     2018-02-18 CRAN (R 3.4.3)                    
+##  digest       0.6.15     2018-01-28 CRAN (R 3.4.3)                    
+##  dplyr      * 0.7.4      2017-09-28 CRAN (R 3.4.3)                    
+##  evaluate     0.10.1     2017-06-24 CRAN (R 3.4.3)                    
+##  foreign      0.8-69     2017-06-22 CRAN (R 3.4.3)                    
+##  ggplot2    * 2.2.1.9000 2018-03-25 Github (tidyverse/ggplot2@3c9c504)
+##  glue         1.2.0      2017-10-29 CRAN (R 3.4.3)                    
+##  graphics   * 3.4.3      2017-12-06 local                             
+##  grDevices  * 3.4.3      2017-12-06 local                             
+##  grid         3.4.3      2017-12-06 local                             
+##  gtable       0.2.0      2016-02-26 CRAN (R 3.4.3)                    
+##  highr        0.6        2016-05-09 CRAN (R 3.4.3)                    
+##  hms          0.4.2      2018-03-10 CRAN (R 3.4.4)                    
+##  htmltools    0.3.6      2017-04-28 CRAN (R 3.4.3)                    
+##  knitr        1.20       2018-02-20 CRAN (R 3.4.4)                    
+##  labeling     0.3        2014-08-23 CRAN (R 3.4.1)                    
+##  lattice      0.20-35    2017-03-25 CRAN (R 3.4.3)                    
+##  lazyeval     0.2.1      2017-10-29 CRAN (R 3.4.3)                    
+##  magrittr     1.5        2014-11-22 CRAN (R 3.4.3)                    
+##  memoise      1.1.0      2017-04-21 CRAN (R 3.4.3)                    
+##  methods    * 3.4.3      2017-12-06 local                             
+##  mnormt       1.5-5      2016-10-15 CRAN (R 3.4.1)                    
+##  munsell      0.4.3      2016-02-13 CRAN (R 3.4.3)                    
+##  nlme         3.1-131    2017-02-06 CRAN (R 3.4.3)                    
+##  pacman     * 0.4.6      2017-05-14 CRAN (R 3.4.3)                    
+##  parallel     3.4.3      2017-12-06 local                             
+##  pillar       1.2.1      2018-02-27 CRAN (R 3.4.4)                    
+##  pkgconfig    2.0.1      2017-03-21 CRAN (R 3.4.3)                    
+##  plyr         1.8.4      2016-06-08 CRAN (R 3.4.3)                    
+##  psych        1.7.8      2017-09-09 CRAN (R 3.4.3)                    
+##  purrr      * 0.2.4      2017-10-18 CRAN (R 3.4.3)                    
+##  R6           2.2.2      2017-06-17 CRAN (R 3.4.3)                    
+##  Rcpp         0.12.16    2018-03-13 CRAN (R 3.4.4)                    
+##  readr      * 1.1.1      2017-05-16 CRAN (R 3.4.3)                    
+##  reshape2     1.4.3      2017-12-11 CRAN (R 3.4.3)                    
+##  rlang        0.2.0.9001 2018-03-25 Github (r-lib/rlang@870a6bf)      
+##  rmarkdown    1.9        2018-03-01 CRAN (R 3.4.4)                    
+##  rprojroot    1.3-2      2018-01-03 CRAN (R 3.4.3)                    
+##  scales       0.5.0.9000 2018-02-11 Github (hadley/scales@d767915)    
+##  stats      * 3.4.3      2017-12-06 local                             
+##  stringi      1.1.7      2018-03-12 CRAN (R 3.4.4)                    
+##  stringr      1.3.0      2018-02-19 CRAN (R 3.4.4)                    
+##  tibble       1.4.2      2018-01-22 CRAN (R 3.4.3)                    
+##  tidyr      * 0.8.0      2018-01-29 CRAN (R 3.4.3)                    
+##  tidyselect   0.2.4      2018-02-26 CRAN (R 3.4.4)                    
+##  tools        3.4.3      2017-12-06 local                             
+##  utf8         1.1.3      2018-01-03 CRAN (R 3.4.3)                    
+##  utils      * 3.4.3      2017-12-06 local                             
+##  withr        2.1.2      2018-03-25 Github (jimhester/withr@79d7b0d)  
+##  xfun         0.1        2018-01-22 CRAN (R 3.4.4)                    
+##  yaml         2.1.18     2018-03-08 CRAN (R 3.4.4)</code></pre>

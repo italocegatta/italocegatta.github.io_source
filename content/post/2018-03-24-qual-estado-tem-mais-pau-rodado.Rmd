@@ -1,0 +1,173 @@
+---
+title: "Qual Estado tem mais pau-rodado?"
+date: 2018-03-24
+author: Ítalo Cegatta
+tags:
+  - readr
+  - dplyr
+  - tidyr
+  - forcats
+  - sf
+  - geosphere
+  - brmap
+  - ggplot2
+  - ggrepel
+  - geofacet
+  - ggthemes
+categories:
+  - Gráficos
+thumbnailImage: http://i.imgur.com/j1kqVed.png
+coverImage: http://i.imgur.com/nsylmUO.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.width = 12, fig.height = 8, dpi = 400
+)
+```
+
+Em Cuiabá, cidade que nasci e cresci, *pau-rodado* é um substantivo que define pessoas que nasceram em outro Estado mas moram em Cuiabá e ali construíram suas vidas. Aliás, Cuiabá sempre foi conhecida por ser uma Cidade super acolhedora e talvez por isso todos encaram o dito *pau-rodado* de uma forma engraçada e sem qualquer sentido pejorativo.
+
+Muito bem, meu interesse com este post é analisar o comportamento dos fluxos migratórios entre Estados e assim encontrar os Estados que tem mais e menos *pau-rodado* em sua população residente. Serei breve e não vamos abordar todos os Estados, mas se você tiver curiosidade poderá aproveitar o código para uma análise mais ampla.
+
+A motivação partiu de uma matéria do [Nexo Jornal](https://www.nexojornal.com.br/grafico/2017/12/01/Fluxos-migrat%C3%B3rios-a-distribui%C3%A7%C3%A3o-da-popula%C3%A7%C3%A3o-de-cada-estado-pelo-pa%C3%ADs) sobre este tema, porém ao nível estadual. Depois de algumas horas tentando decifrar o site do IBGE, cheguei na [página](https://sidra.ibge.gov.br/tabela/1852) que informa a população residente, por lugar de nascimento e unidade da federação. 
+
+Então vamos começar a análise carregando os pacotes do R necessários para este post.
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, tidyr, forcats, sf, geosphere, brmap, ggplot2, ggrepel, geofacet, ggthemes)
+pacman::p_load_gh("italocegatta/brmap")
+```
+
+```{r,  include=FALSE}
+brmap_estado <- brmap::brmap_estado
+```
+
+Os dados originais estão disponíveis neste [link](https://sidra.ibge.gov.br/tabela/1852), fiz apenas adequações porque o IBGE insiste em mesclar células nas tabelas disponibilizadas. Já nesta tabela você consegue olha para Estado que você mora e analisar quanto dos residentes nasceram em outros Estados. Mas o objetivo é enxergar isso de forma gráfica para ampliar a percepção dos dados.
+
+```{r}
+base <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/pnad_2015_migracao.csv")
+
+base
+```
+
+Dados longitudinais como estes ajudam humanos a enxergar os valores de forma mais fácil, mas do ponto de vista de processamento de dados, não dá pra fazer muita coisa com os dados assim. Vamos organizá-los seguindo a filosofia do [Tidy data](https://italocegatta.github.io/o-conceito-tidy-data).
+
+A nova tabela nos informa a porcentagem da população residente (coluna 'valor') para cada Estado subdividindo os valores por local de nascimento. E agora vai a primeira simplificação: foram selecionados apenas os 6 Estados de nascimento mais representativos para cada Estado de residência.
+
+```{r}
+df <- base %>% 
+  gather(reside, valor, -Estado) %>%
+  select(nasce = Estado, reside, valor) %>% 
+  replace_na(list(valor = 0)) %>% 
+  group_by(nasce) %>% 
+  filter(row_number(-valor) <= 6) %>% 
+  ungroup()
+
+df
+```
+
+Vamos nos preparar para a segunda simplificação: selecionar os extremos em termos de população que nasceu e reside no mesmo Estado. Então, RS, CE e PE são os Estados que mais tem moradores nascidos dentro do próprio Estado, enquanto RO, RR e DF tem uma parcela maior de residentes nascidos em outros Estados.
+
+```{r}
+estados_interesse <- df %>%
+  filter(reside == nasce) %>%
+  filter(row_number(-valor) <= 3 | row_number(valor) <= 3) %>% 
+  arrange(-valor) %>%
+  pull(nasce)
+
+estados_interesse
+```
+
+Preparando para o mapa, vamos pegar as coordenadas dos centroides de cada Estado.
+
+```{r}
+estado_cent <- brmap_estado %>% 
+  st_centroid() %>% 
+  cbind(., st_coordinates(.)) %>% 
+  st_set_geometry(NULL) %>% 
+  select(estado, lon = X, lat = Y)
+
+estado_cent
+```
+
+E agora, o pulo do gato. Vamos criar as linhas que ligam os Estados entre si e em seguida adicionar à tabela que informa as relações de fluxo. Portanto, para cada relação entre Estado de nascimento/residência temos uma feição de linha e o valor que representa a porcentagem de residentes.
+
+```{r}
+coord <- df %>% 
+  left_join(estado_cent, by = c("nasce" = "estado")) %>% 
+  left_join(estado_cent, by = c("reside" = "estado")) %>%
+  filter(nasce %in% estados_interesse)
+
+linhas <- gcIntermediate(
+  select(coord, lon.x, lat.x), 
+  select(coord, lon.y, lat.y), 
+  sp = TRUE, addStartEnd = TRUE
+  ) %>% 
+  st_as_sf()
+
+fluxo_linha <- coord %>% 
+  select(nasce, reside, valor) %>% 
+  bind_cols(linhas) %>% 
+  left_join(estado_cent, by = c("reside" = "estado")) %>% 
+  mutate(nasce = fct_relevel(nasce, estados_interesse)) %>% 
+  st_as_sf()
+
+fluxo_linha
+```
+
+Para deixar o gráfico um pouco mais bonito, vamos dar cor ao valor que estamos estudando. Mas agora a feição será o polígono que representa o Estado de residentes.
+
+```{r}
+fluxo_poligono <- brmap_estado %>% 
+  left_join(df, by =  c("estado" = "reside")) %>% 
+  rename(reside = estado) %>% 
+  filter(nasce %in% estados_interesse) %>% 
+  mutate(nasce = fct_relevel(nasce, estados_interesse)) %>% 
+  select(nasce, reside, valor)
+
+fluxo_poligono
+```
+
+Pronto, já temos todos os dados que fazer o gráfico de interesse. Lembrando que optamos por dar destaque a 6 Estados e para cada um deles, os 6 Estados de nascimento que mais representam a população de residentes. Sim, é um tanto complexo. Eu fiquei algumas horas para poder criar o código e entender o que estava processando.
+
+Como exemplo vamos interpretar as informações de Roraima: de todos os residentes, 55.6% nasceram no próprio Estado de Roraima; 5.2%, 6.5% e 19% nasceram no Amazonas, Pará e Maranhão, respectivamente. 
+
+```{r}
+ggplot() +
+  geom_sf(data = brmap_estado, color = "grey80", fill = "grey95", size = 0.3) +
+  geom_sf(data = fluxo_poligono, aes(fill = valor), color = "grey80", size = 0.3) +
+  geom_sf(data = fluxo_linha, color = "cyan", size = 0.3) +
+  geom_label_repel(
+    data = fluxo_linha,
+    aes(lon, lat, label = round(valor, 1)),
+    size = 3, segment.colour = NA
+  ) +
+  facet_wrap(~nasce) +
+  labs(
+    title = "População residente (% do total geral)",
+    subtitle = "PNAD/IBGE, 2015",
+    x = NULL, y = NULL
+  ) +
+  scale_fill_viridis_c(guide = FALSE) +
+  coord_sf(datum = NA) +
+  theme_void()
+```
+
+Pontos interessantes: 
+
+* Rondônia e Roraima retém uma proporção parecida da população dentro do próprio Estado, entretanto o pessoal que mora em Rondônia veio do Sul e Sudeste; ao passo que os moradores de Roraima vem do AM, PA e MA.
+* O Distrito Federal não me surpreendeu, grande parte de pessoas nasceram em GO, MG e BA. 
+* Um número expressivo de pessoas que nasceram em São Paulo e hoje moram no CE e PE... parece que o jogo virou, não é mesmo?
+
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
+
+```{r}
+devtools::session_info()
+```
