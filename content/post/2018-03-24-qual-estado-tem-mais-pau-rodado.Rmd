@@ -49,7 +49,7 @@ pacman::p_load_gh("italocegatta/brmap")
 brmap_estado <- brmap::brmap_estado
 ```
 
-Os dados originais estão disponíveis neste [link](https://sidra.ibge.gov.br/tabela/1852), fiz apenas adequações porque o IBGE insiste em mesclar células nas tabelas disponibilizadas. Já nesta tabela você consegue olha para Estado que você mora e analisar quanto dos residentes nasceram em outros Estados. Mas o objetivo é enxergar isso de forma gráfica para ampliar a percepção dos dados.
+Os dados originais estão disponíveis neste [link](https://sidra.ibge.gov.br/tabela/1852), fiz apenas adequações porque o IBGE insiste em mesclar células nas tabelas disponibilizadas. Já nesta tabela você consegue olhar para o Estado que você mora e analisar quanto dos residentes nasceram em outros Estados. Mas o objetivo é enxergar isso de forma gráfica para ampliar a percepção dos dados.
 
 ```{r}
 base <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/pnad_2015_migracao.csv")
@@ -59,7 +59,7 @@ base
 
 Dados longitudinais como estes ajudam humanos a enxergar os valores de forma mais fácil, mas do ponto de vista de processamento de dados, não dá pra fazer muita coisa com os dados assim. Vamos organizá-los seguindo a filosofia do [Tidy data](https://italocegatta.github.io/o-conceito-tidy-data).
 
-A nova tabela nos informa a porcentagem da população residente (coluna 'valor') para cada Estado subdividindo os valores por local de nascimento. E agora vai a primeira simplificação: foram selecionados apenas os 6 Estados de nascimento mais representativos para cada Estado de residência.
+A nova tabela nos informa a porcentagem da população residente (coluna 'valor') para cada Estado, subdividindo os valores por local de nascimento. E agora vai a primeira simplificação: foram selecionados apenas os 6 Estados de nascimento mais representativos para cada Estado de residência.
 
 ```{r}
 df <- base %>% 
@@ -137,7 +137,7 @@ fluxo_poligono
 
 Pronto, já temos todos os dados que fazer o gráfico de interesse. Lembrando que optamos por dar destaque a 6 Estados e para cada um deles, os 6 Estados de nascimento que mais representam a população de residentes. Sim, é um tanto complexo. Eu fiquei algumas horas para poder criar o código e entender o que estava processando.
 
-Como exemplo vamos interpretar as informações de Roraima: de todos os residentes, 55.6% nasceram no próprio Estado de Roraima; 5.2%, 6.5% e 19% nasceram no Amazonas, Pará e Maranhão, respectivamente. 
+Como exemplo vamos interpretar as informações de Roraima: do total de residentes, 55.6% nasceram no próprio Estado de Roraima; 5.2%, 6.5% e 19% nasceram no Amazonas, Pará e Maranhão, respectivamente. 
 
 ```{r}
 ggplot() +
