@@ -1,6 +1,9 @@
 ---
 title: Sobre mim
 date: 1992-05-30
+comments:       false
+showMeta:       false
+showActions:    false
 ---
 
 Sou engenheiro florestal formado pela Universidade de São ([ESALQ/USP](http://www4.esalq.usp.br/)). Trabalho com modelagem ecofisiológica na [Suzano Papel e Celuose](http://www.suzano.com.br/), em Itapetininga, SP. Grande parte das minhas atividades estão relacionadas à métodos computacionais aplicados à pesquisa florestal.
