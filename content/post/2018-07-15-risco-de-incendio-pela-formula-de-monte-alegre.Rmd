@@ -1,0 +1,263 @@
+---
+title: "Risco de incêndio pela Fórmula de Monte Alegre"
+date: 2018-07-15
+author: Ítalo Cegatta
+tags:
+  - readr
+  - dplyr
+  - tidyr
+  - forcats
+  - lubridate
+  - ggplot2
+  - ggridges
+categories:
+  - Risco de incêndio
+bibliography: ["bib/biblio.bib"]
+thumbnailImage: http://i.imgur.com/u2Y3yGs.png
+coverImage: http://i.imgur.com/xStpjCy.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.width = 8, fig.height = 4, dpi = 400
+)
+```
+
+No setor florestal o fogo é uma questão recorrente e preocupante. Utilizar um índice de risco ou perigo de incêndio ajuda, no mínimo, no planejamento e no alerta para quem mora no entorno de maciços florestais como parques, hortos e plantios florestais.
+
+A Fórmula de Monte Alegre (FMA) é um índice bastante simples, foi proposta em 1972 por @soares1972 e utiliza apenas a umidade relativa do ar às 13h e a precipitação para calcular o risco de incêndio. É um índice que possui 5 classes de risco e é cumulativo, portanto precisa ser calculado todos os dias.
+
+O objetivo deste post é implementar a FMA utilizando dados de 1988 à 2017 da estação meteorológica convencional da [ESALQ em Piracicaba](http://www.esalq.usp.br/departamentos/leb/postocon.html).
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, tidyr, forcats, lubridate, ggplot2, ggridges)
+```
+
+```{r}
+base <- read_csv2(
+  "https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/posto_esalq_dia.csv",
+  col_types = cols(.default = col_number(), data = col_character())
+)
+
+base
+```
+
+O primeiro passo é estimar a umidade relativa às 13h, uma vez que é este valor que a FMA considera para o cálculo. Utilizaremos a equação ajustada por @alvares2014.
+
+```{r}
+base_fma <- base %>%
+  mutate(
+    data = dmy(data),
+    ur13 = (8.77 * exp(0.024 * ur_med)) - 2.943
+  ) %>% 
+  select(data, ppt, ur13)
+
+base_fma
+```
+
+Agora vamos fazer uma breve análise dos dados brutos. Começando pela chuva, podemos calcular o número médio de dias de chuva forte e fraca neste período. Entre julho e agosto há poucas chuvas em Piracicaba e isso já sugere que neste período o risco de incêndio deve ser alto.
+
+```{r}
+base_fma %>%
+  mutate(ano = year(data), mes = month(data)) %>% 
+  mutate(
+    d_1 = ifelse(ppt > 1 & ppt <= 5, 1, 0),
+    d_5 = ifelse(ppt > 5 , 1, 0)
+  ) %>% 
+  group_by(ano, mes) %>% 
+  summarise_at(vars(d_1, d_5), sum, na.rm = TRUE) %>% 
+  group_by(mes) %>% 
+  summarise_at(vars(d_1, d_5), ~round(mean(.))) %>% 
+  ungroup() %>% 
+  rename(`<5` = d_1, `>5` = d_5) %>% 
+  gather(nivel, d_chuva, `<5`:`>5`) %>% 
+  mutate(
+    d_chuva = ifelse(d_chuva == 0, NA, d_chuva),
+    nivel = fct_relevel(nivel, "<5" , ">5")
+  ) %>% 
+  ggplot(aes(mes, d_chuva, fill = nivel)) +
+    geom_col(alpha = 0.8) +
+    labs(
+      x = "Mês do ano",
+      y = "Nº de dias de chuva (#)",
+      fill = NULL
+    ) +
+    scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), "%b")) +
+    scale_y_continuous(breaks = seq(0, 30, 2), expand = expand_scale(mult = c(0.01, .1))) +
+    scale_fill_manual(
+      values = c("#4292c6", "#084594"),
+      labels = c("Chuva fraca (<5 mm)","Chuva forte (>5 mm)")
+    ) +
+    theme_bw() +
+    theme(legend.position = "top", panel.grid.minor.x = element_blank())
+```
+
+Olhando para a distribuição da umidade relativa em cada mês, podemos ver que em junho a mediana ainda está próximo dos 50% de umidade. E só em julho que os dias mais secos começam a ter mais frequência e essa tendência aumenta até setembro, depois retorna gradativamente até a mediana de 57% de umidade em dezembro.
+
+```{r}
+base_fma %>% 
+  filter(!is.na(ur13)) %>% 
+  mutate(mes = factor(month(data))) %>% 
+  ggplot(aes(ur13, mes)) +
+    geom_density_ridges(quantile_lines = TRUE, quantiles = 2, fill = "#016c59", alpha = 0.9) +
+    labs(x = "Umidade Relativa às 13h (%)", y = "Mês do ano") +
+    scale_x_continuous(breaks = seq(10, 100, 10)) +
+    scale_y_discrete(labels = format(ISOdate(2000, 1:12, 1), "%b")) +
+    theme_bw()
+```
+
+Sobre a Fórmula de Monte Alegre, o contexto que motivou seu desenvolvimento foi bastante trágico. Em 1963 um grande incêndio atingiu o estado do Paraná, com centenas de mortes e cerca de 2 milhões de hectares de florestas queimadas. Em 1972 o Professor Ronaldo Soares, da UFPR, defendeu sua tese de mestrado propondo a Fórmula de Monte Alegre com base em registros de incêndios florestais coletados a partir de 1965 na fazenda Monte Alegre (Klabin), em Telêmaco Borba-PR.
+
+A cálculo do índice é bastante simples, basta calcular o valor FMA do dia corrente e somar com o valor do dia anterior. O FMA é calculado através da seguinte expressão:
+
+<img src="http://www.sciweavers.org/tex2img.php?eq=FMA%20%3D%20%20%5Csum_%7Bi%3D1%7D%5En%20%20%5Cfrac%7B100%7D%7BURi_%7B13h%7D%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="FMA =  \sum_{i=1}^n  \frac{100}{URi_{13h}} " width="139" height="62" />
+
+Entretanto é preciso aplicar restrições ao valor FMA de acordo com a chuva do dia, seguindo estes parâmetros:
+
+| Precipitação 	| Restrição                                                                         	  |
+|--------------	|-------------------------------------------------------------------------------------- |
+| < 2,5        	| Nenhuma                                                                           	  |
+| 2,5 - 4,9    	| 0,7 * FMAi-1 + FMAi                                                         |
+| 5,0 - 9,9    	| 0,4 * FMAi-1 + FMAi                                                         |
+| 10,0 - 12,9  	| 0,2 * FMAi-1 + FMAi                                                         |
+| > 12,9       	| Interromper o cálculo anterior (FMAi   = 0) e começar novo cálculo no dia seguinte |
+
+O resultado do índice é apresentado com frequência na forma de classes de risco, obedecendo estes limites:
+
+| FMA        	| Grau de perigo 	|
+|------------	|----------------	|
+| 0 - 1,0    	| Nulo           	|
+| 1,1 - 3,0  	| Pequeno        	|
+| 3,1 - 8,0  	| Médio          	|
+| 8,1 – 20,0 	| Alto           	|
+| > 20,0     	| Muito alto     	|
+
+Vamos agora declara as funções que vão calcular o FMA e atribuir as classes de risco aos nossos dados.
+
+```{r}
+fma <- function(data, ur, ppt) {
+  
+  # testa se os dados estão ordenados
+  if (any(data != sort(data))) {
+    stop("data precisa estar em ordem crescente")
+  }
+
+  # cria o vetor de resultado  
+  n <- length(ur)
+  fma_vec <- rep(NA_real_, n)
+  
+  for (i in seq_len(n)) {
+    
+    # primeiro valor eh 0   
+    if (i == 1) {
+      fma_vec[i] <- 0
+      next()
+    }
+    
+    # se dia anterior nao tem informacao, valor eh 0
+    if (is.na(ur[i - 1])) {
+      fma_vec[i] <- 0
+      next()
+    }
+    
+    # aplica restricoes da chuva
+    fma_vec[i] <- case_when(
+      ppt[i] < 2.5 ~ (100 / ur[i]) + fma_vec[i - 1] * 1 ,
+      ppt[i] >= 2.5 & ppt[i] < 5  ~ (100 / ur[i]) + fma_vec[i - 1] * 0.7,
+      ppt[i] >= 5   & ppt[i] < 10 ~ (100 / ur[i]) + fma_vec[i - 1] * 0.4,
+      ppt[i] >= 10  & ppt[i] < 13 ~ (100 / ur[i]) + fma_vec[i - 1] * 0.2,
+      ppt[i] >= 13 ~ 0
+    )
+  }
+  
+  fma_vec
+}
+
+fma_classe <- function(fma, limites = c(1, 3, 8, 20)) {
+  
+  classe <- case_when(
+    fma <= 1 ~ "Nulo",
+    fma > 1 & fma <= 3 ~"Pequeno",
+    fma > 3 & fma <= 8 ~ "Médio",
+    fma > 8 & fma <= 20 ~ "Alto",
+    fma > 20 ~ "Muito Alto"
+  )
+  
+  factor(classe, levels = c("Nulo", "Pequeno", "Médio", "Alto", "Muito Alto"))
+}
+```
+
+Seguindo para o cálculo do índice, vamos criar um novo data frame com o valor FMA e as classes de riscos utilizando as funções que acabamos de criar.
+
+```{r}
+dados_fma <- base_fma %>% 
+  mutate(
+    fma = fma(data, ur13, ppt),
+    risco = fma_classe(fma)
+  )
+
+dados_fma
+```
+
+A primeira abordagem que quero mostrar é a evolução do valor FMA ao longo do ano. Considerando o dia do ano ou dia juliano, podemos ver a evolução do valor FMA devido a ausência de chuvas fortes. O máximo dessa "corrida" de risco vai até próximo do dia 290, que corresponde ao meio de outubro.
+
+```{r, fig.height=6}
+dados_fma %>% 
+  mutate(
+    ano = year(data),
+    dia_ano = yday(data)
+  ) %>% 
+  ggplot(aes(dia_ano, factor(ano), fill = fma)) +
+  geom_tile() +
+  labs(x = "Dia do ano", y = "Ano", fill = "FMA") +
+  scale_fill_viridis_c(option = "viridis") +
+  scale_x_continuous(breaks = seq(20, 360, 20), expand = c(0, 0)) +
+  theme_bw()
+```
+
+Calculando a frequência das classes dentro de cada ano, podemos ver que predomina o risco Muito Alto, seguido do risco Alto. O risco nulo, ocorre em aproximadamente 10% dos dias do ano. 
+
+```{r}
+dados_fma  %>% 
+  filter(!is.na(risco)) %>% 
+  group_by(ano = year(data), risco) %>% 
+  tally() %>% 
+  ggplot(aes(ano, n, fill = risco)) +
+  geom_col(position = "fill", alpha = 0.8) +
+  labs(x = "Ano", y = "Frequência", fill = "Risco") +
+  scale_y_continuous(breaks = seq(0.1, 1, 0.1), labels = scales::percent) +
+  scale_fill_brewer(palette = "Spectral", direction = -1) +
+  theme_bw()
+```
+
+Olhando para a frequência de risco dentro dos meses, fica claro o maior risco próximo do mês de agosto, como sugeriram os gráficos de frequências de chuva e umidade relativa.
+
+```{r}
+dados_fma  %>% 
+  filter(!is.na(risco)) %>% 
+  group_by(mes = month(data), risco) %>% 
+  tally() %>% 
+  ggplot(aes(mes, n, fill = risco)) +
+  geom_col(position = "fill", alpha = 0.8) +
+  labs(x = "Mês do ano", y = "Frequência", fill = "Risco") +
+  scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), "%b")) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = "Spectral", direction = -1) +
+  theme_bw()
+```
+
+Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais acertivo para uma certa região.
+
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
+
+```{r}
+devtools::session_info()
+```
+
+# Referências

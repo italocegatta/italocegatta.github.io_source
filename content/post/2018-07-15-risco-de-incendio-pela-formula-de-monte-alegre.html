@@ -1,0 +1,384 @@
+---
+title: "Risco de incêndio pela Fórmula de Monte Alegre"
+date: 2018-07-15
+author: Ítalo Cegatta
+tags:
+  - readr
+  - dplyr
+  - tidyr
+  - forcats
+  - lubridate
+  - ggplot2
+  - ggridges
+categories:
+  - Risco de incêndio
+bibliography: ["bib/biblio.bib"]
+thumbnailImage: http://i.imgur.com/u2Y3yGs.png
+coverImage: http://i.imgur.com/xStpjCy.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+
+
+<p>No setor florestal o fogo é uma questão recorrente e preocupante. Utilizar um índice de risco ou perigo de incêndio ajuda, no mínimo, no planejamento e no alerta para quem mora no entorno de maciços florestais como parques, hortos e plantios florestais.</p>
+<p>A Fórmula de Monte Alegre (FMA) é um índice bastante simples, foi proposta em 1972 por <span class="citation">Soares (1972)</span> e utiliza apenas a umidade relativa do ar às 13h e a precipitação para calcular o risco de incêndio. É um índice que possui 5 classes de risco e é cumulativo, portanto precisa ser calculado todos os dias.</p>
+<p>O objetivo deste post é implementar a FMA utilizando dados de 1988 à 2017 da estação meteorológica convencional da <a href="http://www.esalq.usp.br/departamentos/leb/postocon.html">ESALQ em Piracicaba</a>.</p>
+<pre class="r"><code>if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)
+pacman::p_load(readr, dplyr, tidyr, forcats, lubridate, ggplot2, ggridges)</code></pre>
+<pre class="r"><code>base &lt;- read_csv2(
+  &quot;https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/posto_esalq_dia.csv&quot;,
+  col_types = cols(.default = col_number(), data = col_character())
+)
+
+base</code></pre>
+<pre><code>## # A tibble: 10,961 x 3
+##    data         ppt ur_med
+##    &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+##  1 01/01/1988   0       62
+##  2 02/01/1988   0       65
+##  3 03/01/1988   0       65
+##  4 04/01/1988   0       69
+##  5 05/01/1988  33.9     74
+##  6 06/01/1988  66       90
+##  7 07/01/1988   0       78
+##  8 08/01/1988   0.5     88
+##  9 09/01/1988  17.1     83
+## 10 10/01/1988   7.8     83
+## # ... with 10,951 more rows</code></pre>
+<p>O primeiro passo é estimar a umidade relativa às 13h, uma vez que é este valor que a FMA considera para o cálculo. Utilizaremos a equação ajustada por <span class="citation">Alvares et al. (2014)</span>.</p>
+<pre class="r"><code>base_fma &lt;- base %&gt;%
+  mutate(
+    data = dmy(data),
+    ur13 = (8.77 * exp(0.024 * ur_med)) - 2.943
+  ) %&gt;% 
+  select(data, ppt, ur13)
+
+base_fma</code></pre>
+<pre><code>## # A tibble: 10,961 x 3
+##    data         ppt  ur13
+##    &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt;
+##  1 1988-01-01   0    35.9
+##  2 1988-01-02   0    38.8
+##  3 1988-01-03   0    38.8
+##  4 1988-01-04   0    43.0
+##  5 1988-01-05  33.9  48.9
+##  6 1988-01-06  66    73.1
+##  7 1988-01-07   0    54.1
+##  8 1988-01-08   0.5  69.5
+##  9 1988-01-09  17.1  61.3
+## 10 1988-01-10   7.8  61.3
+## # ... with 10,951 more rows</code></pre>
+<p>Agora vamos fazer uma breve análise dos dados brutos. Começando pela chuva, podemos calcular o número médio de dias de chuva forte e fraca neste período. Entre julho e agosto há poucas chuvas em Piracicaba e isso já sugere que neste período o risco de incêndio deve ser alto.</p>
+<pre class="r"><code>base_fma %&gt;%
+  mutate(ano = year(data), mes = month(data)) %&gt;% 
+  mutate(
+    d_1 = ifelse(ppt &gt; 1 &amp; ppt &lt;= 5, 1, 0),
+    d_5 = ifelse(ppt &gt; 5 , 1, 0)
+  ) %&gt;% 
+  group_by(ano, mes) %&gt;% 
+  summarise_at(vars(d_1, d_5), sum, na.rm = TRUE) %&gt;% 
+  group_by(mes) %&gt;% 
+  summarise_at(vars(d_1, d_5), ~round(mean(.))) %&gt;% 
+  ungroup() %&gt;% 
+  rename(`&lt;5` = d_1, `&gt;5` = d_5) %&gt;% 
+  gather(nivel, d_chuva, `&lt;5`:`&gt;5`) %&gt;% 
+  mutate(
+    d_chuva = ifelse(d_chuva == 0, NA, d_chuva),
+    nivel = fct_relevel(nivel, &quot;&lt;5&quot; , &quot;&gt;5&quot;)
+  ) %&gt;% 
+  ggplot(aes(mes, d_chuva, fill = nivel)) +
+    geom_col(alpha = 0.8) +
+    labs(
+      x = &quot;Mês do ano&quot;,
+      y = &quot;Nº de dias de chuva (#)&quot;,
+      fill = NULL
+    ) +
+    scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), &quot;%b&quot;)) +
+    scale_y_continuous(breaks = seq(0, 30, 2), expand = expand_scale(mult = c(0.01, .1))) +
+    scale_fill_manual(
+      values = c(&quot;#4292c6&quot;, &quot;#084594&quot;),
+      labels = c(&quot;Chuva fraca (&lt;5 mm)&quot;,&quot;Chuva forte (&gt;5 mm)&quot;)
+    ) +
+    theme_bw() +
+    theme(legend.position = &quot;top&quot;, panel.grid.minor.x = element_blank())</code></pre>
+<p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-4-1.png" width="3200" /></p>
+<p>Olhando para a distribuição da umidade relativa em cada mês, podemos ver que em junho a mediana ainda está próximo dos 50% de umidade. E só em julho que os dias mais secos começam a ter mais frequência e essa tendência aumenta até setembro, depois retorna gradativamente até a mediana de 57% de umidade em dezembro.</p>
+<pre class="r"><code>base_fma %&gt;% 
+  filter(!is.na(ur13)) %&gt;% 
+  mutate(mes = factor(month(data))) %&gt;% 
+  ggplot(aes(ur13, mes)) +
+    geom_density_ridges(quantile_lines = TRUE, quantiles = 2, fill = &quot;#016c59&quot;, alpha = 0.9) +
+    labs(x = &quot;Umidade Relativa às 13h (%)&quot;, y = &quot;Mês do ano&quot;) +
+    scale_x_continuous(breaks = seq(10, 100, 10)) +
+    scale_y_discrete(labels = format(ISOdate(2000, 1:12, 1), &quot;%b&quot;)) +
+    theme_bw()</code></pre>
+<p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-5-1.png" width="3200" /></p>
+<p>Sobre a Fórmula de Monte Alegre, o contexto que motivou seu desenvolvimento foi bastante trágico. Em 1963 um grande incêndio atingiu o estado do Paraná, com centenas de mortes e cerca de 2 milhões de hectares de florestas queimadas. Em 1972 o Professor Ronaldo Soares, da UFPR, defendeu sua tese de mestrado propondo a Fórmula de Monte Alegre com base em registros de incêndios florestais coletados a partir de 1965 na fazenda Monte Alegre (Klabin), em Telêmaco Borba-PR.</p>
+<p>A cálculo do índice é bastante simples, basta calcular o valor FMA do dia corrente e somar com o valor do dia anterior. O FMA é calculado através da seguinte expressão:</p>
+<p><img src="http://www.sciweavers.org/tex2img.php?eq=FMA%20%3D%20%20%5Csum_%7Bi%3D1%7D%5En%20%20%5Cfrac%7B100%7D%7BURi_%7B13h%7D%7D%20&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0" align="center" border="0" alt="FMA =  \sum_{i=1}^n  \frac{100}{URi_{13h}} " width="139" height="62" /></p>
+<p>Entretanto é preciso aplicar restrições ao valor FMA de acordo com a chuva do dia, seguindo estes parâmetros:</p>
+<table>
+<colgroup>
+<col width="14%" />
+<col width="85%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Precipitação</th>
+<th>Restrição</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt; 2,5</td>
+<td>Nenhuma</td>
+</tr>
+<tr class="even">
+<td>2,5 - 4,9</td>
+<td>0,7 * FMAi-1 + FMAi</td>
+</tr>
+<tr class="odd">
+<td>5,0 - 9,9</td>
+<td>0,4 * FMAi-1 + FMAi</td>
+</tr>
+<tr class="even">
+<td>10,0 - 12,9</td>
+<td>0,2 * FMAi-1 + FMAi</td>
+</tr>
+<tr class="odd">
+<td>&gt; 12,9</td>
+<td>Interromper o cálculo anterior (FMAi = 0) e começar novo cálculo no dia seguinte</td>
+</tr>
+</tbody>
+</table>
+<p>O resultado do índice é apresentado com frequência na forma de classes de risco, obedecendo estes limites:</p>
+<table>
+<thead>
+<tr class="header">
+<th>FMA</th>
+<th>Grau de perigo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0 - 1,0</td>
+<td>Nulo</td>
+</tr>
+<tr class="even">
+<td>1,1 - 3,0</td>
+<td>Pequeno</td>
+</tr>
+<tr class="odd">
+<td>3,1 - 8,0</td>
+<td>Médio</td>
+</tr>
+<tr class="even">
+<td>8,1 – 20,0</td>
+<td>Alto</td>
+</tr>
+<tr class="odd">
+<td>&gt; 20,0</td>
+<td>Muito alto</td>
+</tr>
+</tbody>
+</table>
+<p>Vamos agora declara as funções que vão calcular o FMA e atribuir as classes de risco aos nossos dados.</p>
+<pre class="r"><code>fma &lt;- function(data, ur, ppt) {
+  
+  # testa se os dados estão ordenados
+  if (any(data != sort(data))) {
+    stop(&quot;data precisa estar em ordem crescente&quot;)
+  }
+
+  # cria o vetor de resultado  
+  n &lt;- length(ur)
+  fma_vec &lt;- rep(NA_real_, n)
+  
+  for (i in seq_len(n)) {
+    
+    # primeiro valor eh 0   
+    if (i == 1) {
+      fma_vec[i] &lt;- 0
+      next()
+    }
+    
+    # se dia anterior nao tem informacao, valor eh 0
+    if (is.na(ur[i - 1])) {
+      fma_vec[i] &lt;- 0
+      next()
+    }
+    
+    # aplica restricoes da chuva
+    fma_vec[i] &lt;- case_when(
+      ppt[i] &lt; 2.5 ~ (100 / ur[i]) + fma_vec[i - 1] * 1 ,
+      ppt[i] &gt;= 2.5 &amp; ppt[i] &lt; 5  ~ (100 / ur[i]) + fma_vec[i - 1] * 0.7,
+      ppt[i] &gt;= 5   &amp; ppt[i] &lt; 10 ~ (100 / ur[i]) + fma_vec[i - 1] * 0.4,
+      ppt[i] &gt;= 10  &amp; ppt[i] &lt; 13 ~ (100 / ur[i]) + fma_vec[i - 1] * 0.2,
+      ppt[i] &gt;= 13 ~ 0
+    )
+  }
+  
+  fma_vec
+}
+
+fma_classe &lt;- function(fma, limites = c(1, 3, 8, 20)) {
+  
+  classe &lt;- case_when(
+    fma &lt;= 1 ~ &quot;Nulo&quot;,
+    fma &gt; 1 &amp; fma &lt;= 3 ~&quot;Pequeno&quot;,
+    fma &gt; 3 &amp; fma &lt;= 8 ~ &quot;Médio&quot;,
+    fma &gt; 8 &amp; fma &lt;= 20 ~ &quot;Alto&quot;,
+    fma &gt; 20 ~ &quot;Muito Alto&quot;
+  )
+  
+  factor(classe, levels = c(&quot;Nulo&quot;, &quot;Pequeno&quot;, &quot;Médio&quot;, &quot;Alto&quot;, &quot;Muito Alto&quot;))
+}</code></pre>
+<p>Seguindo para o cálculo do índice, vamos criar um novo data frame com o valor FMA e as classes de riscos utilizando as funções que acabamos de criar.</p>
+<pre class="r"><code>dados_fma &lt;- base_fma %&gt;% 
+  mutate(
+    fma = fma(data, ur13, ppt),
+    risco = fma_classe(fma)
+  )
+
+dados_fma</code></pre>
+<pre><code>## # A tibble: 10,961 x 5
+##    data         ppt  ur13   fma risco  
+##    &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;  
+##  1 1988-01-01   0    35.9  0    Nulo   
+##  2 1988-01-02   0    38.8  2.58 Pequeno
+##  3 1988-01-03   0    38.8  5.16 Médio  
+##  4 1988-01-04   0    43.0  7.48 Médio  
+##  5 1988-01-05  33.9  48.9  0    Nulo   
+##  6 1988-01-06  66    73.1  0    Nulo   
+##  7 1988-01-07   0    54.1  1.85 Pequeno
+##  8 1988-01-08   0.5  69.5  3.29 Médio  
+##  9 1988-01-09  17.1  61.3  0    Nulo   
+## 10 1988-01-10   7.8  61.3  1.63 Pequeno
+## # ... with 10,951 more rows</code></pre>
+<p>A primeira abordagem que quero mostrar é a evolução do valor FMA ao longo do ano. Considerando o dia do ano ou dia juliano, podemos ver a evolução do valor FMA devido a ausência de chuvas fortes. O máximo dessa “corrida” de risco vai até próximo do dia 290, que corresponde ao meio de outubro.</p>
+<pre class="r"><code>dados_fma %&gt;% 
+  mutate(
+    ano = year(data),
+    dia_ano = yday(data)
+  ) %&gt;% 
+  ggplot(aes(dia_ano, factor(ano), fill = fma)) +
+  geom_tile() +
+  labs(x = &quot;Dia do ano&quot;, y = &quot;Ano&quot;, fill = &quot;FMA&quot;) +
+  scale_fill_viridis_c(option = &quot;viridis&quot;) +
+  scale_x_continuous(breaks = seq(20, 360, 20), expand = c(0, 0)) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-8-1.png" width="3200" /></p>
+<p>Calculando a frequência das classes dentro de cada ano, podemos ver que predomina o risco Muito Alto, seguido do risco Alto. O risco nulo, ocorre em aproximadamente 10% dos dias do ano.</p>
+<pre class="r"><code>dados_fma  %&gt;% 
+  filter(!is.na(risco)) %&gt;% 
+  group_by(ano = year(data), risco) %&gt;% 
+  tally() %&gt;% 
+  ggplot(aes(ano, n, fill = risco)) +
+  geom_col(position = &quot;fill&quot;, alpha = 0.8) +
+  labs(x = &quot;Ano&quot;, y = &quot;Frequência&quot;, fill = &quot;Risco&quot;) +
+  scale_y_continuous(breaks = seq(0.1, 1, 0.1), labels = scales::percent) +
+  scale_fill_brewer(palette = &quot;Spectral&quot;, direction = -1) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-9-1.png" width="3200" /></p>
+<p>Olhando para a frequência de risco dentro dos meses, fica claro o maior risco próximo do mês de agosto, como sugeriram os gráficos de frequências de chuva e umidade relativa.</p>
+<pre class="r"><code>dados_fma  %&gt;% 
+  filter(!is.na(risco)) %&gt;% 
+  group_by(mes = month(data), risco) %&gt;% 
+  tally() %&gt;% 
+  ggplot(aes(mes, n, fill = risco)) +
+  geom_col(position = &quot;fill&quot;, alpha = 0.8) +
+  labs(x = &quot;Mês do ano&quot;, y = &quot;Frequência&quot;, fill = &quot;Risco&quot;) +
+  scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), &quot;%b&quot;)) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = &quot;Spectral&quot;, direction = -1) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-10-1.png" width="3200" /></p>
+<p>Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais acertivo para uma certa região.</p>
+<p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.</p>
+<pre class="r"><code>devtools::session_info()</code></pre>
+<pre><code>##  setting  value                       
+##  version  R version 3.4.3 (2017-11-30)
+##  system   x86_64, mingw32             
+##  ui       RTerm                       
+##  language (EN)                        
+##  collate  Portuguese_Brazil.1252      
+##  tz       America/Sao_Paulo           
+##  date     2018-07-15                  
+## 
+##  package      * version    date       source                            
+##  assertthat     0.2.0      2017-04-11 CRAN (R 3.4.3)                    
+##  backports      1.1.2      2017-12-13 CRAN (R 3.4.3)                    
+##  base         * 3.4.3      2017-12-06 local                             
+##  bindr          0.1.1      2018-03-13 CRAN (R 3.4.4)                    
+##  bindrcpp     * 0.2.2      2018-03-29 CRAN (R 3.4.4)                    
+##  blogdown       0.8        2018-07-15 CRAN (R 3.4.3)                    
+##  bookdown       0.7        2018-02-18 CRAN (R 3.4.4)                    
+##  cli            1.0.0      2017-11-05 CRAN (R 3.4.3)                    
+##  colorspace     1.3-2      2016-12-14 CRAN (R 3.4.3)                    
+##  compiler       3.4.3      2017-12-06 local                             
+##  crayon         1.3.4      2017-09-16 CRAN (R 3.4.3)                    
+##  curl           3.2        2018-03-28 CRAN (R 3.4.4)                    
+##  datasets     * 3.4.3      2017-12-06 local                             
+##  devtools       1.13.6     2018-06-27 CRAN (R 3.4.4)                    
+##  digest         0.6.15     2018-01-28 CRAN (R 3.4.3)                    
+##  dplyr        * 0.7.6      2018-06-29 CRAN (R 3.4.4)                    
+##  evaluate       0.10.1     2017-06-24 CRAN (R 3.4.3)                    
+##  fansi          0.2.3      2018-05-06 CRAN (R 3.4.4)                    
+##  forcats      * 0.3.0      2018-02-19 CRAN (R 3.4.4)                    
+##  ggplot2      * 3.0.0      2018-07-07 Github (tidyverse/ggplot2@3d022ed)
+##  ggridges     * 0.5.0      2018-04-05 CRAN (R 3.4.4)                    
+##  glue           1.2.0      2017-10-29 CRAN (R 3.4.3)                    
+##  graphics     * 3.4.3      2017-12-06 local                             
+##  grDevices    * 3.4.3      2017-12-06 local                             
+##  grid           3.4.3      2017-12-06 local                             
+##  gtable         0.2.0      2016-02-26 CRAN (R 3.4.3)                    
+##  hms            0.4.2      2018-03-10 CRAN (R 3.4.4)                    
+##  htmltools      0.3.6      2017-04-28 CRAN (R 3.4.3)                    
+##  knitr          1.20       2018-02-20 CRAN (R 3.4.4)                    
+##  labeling       0.3        2014-08-23 CRAN (R 3.4.1)                    
+##  lazyeval       0.2.1      2017-10-29 CRAN (R 3.4.3)                    
+##  lubridate    * 1.7.4      2018-04-11 CRAN (R 3.4.4)                    
+##  magrittr       1.5        2014-11-22 CRAN (R 3.4.3)                    
+##  memoise        1.1.0      2017-04-21 CRAN (R 3.4.3)                    
+##  methods      * 3.4.3      2017-12-06 local                             
+##  munsell        0.5.0      2018-06-12 CRAN (R 3.4.4)                    
+##  pacman       * 0.4.6      2017-05-14 CRAN (R 3.4.3)                    
+##  pillar         1.3.0      2018-07-14 CRAN (R 3.4.4)                    
+##  pkgconfig      2.0.1      2017-03-21 CRAN (R 3.4.3)                    
+##  plyr           1.8.4      2016-06-08 CRAN (R 3.4.3)                    
+##  purrr          0.2.5      2018-05-29 CRAN (R 3.4.4)                    
+##  R6             2.2.2      2017-06-17 CRAN (R 3.4.3)                    
+##  RColorBrewer   1.1-2      2014-12-07 CRAN (R 3.4.1)                    
+##  Rcpp           0.12.17    2018-05-18 CRAN (R 3.4.4)                    
+##  readr        * 1.1.1      2017-05-16 CRAN (R 3.4.3)                    
+##  rlang          0.2.1      2018-05-30 CRAN (R 3.4.4)                    
+##  rmarkdown      1.10       2018-06-11 CRAN (R 3.4.4)                    
+##  rprojroot      1.3-2      2018-01-03 CRAN (R 3.4.3)                    
+##  scales         0.5.0.9000 2018-07-07 Github (hadley/scales@32e6d55)    
+##  stats        * 3.4.3      2017-12-06 local                             
+##  stringi        1.2.3      2018-06-12 CRAN (R 3.4.3)                    
+##  stringr        1.3.1      2018-05-10 CRAN (R 3.4.4)                    
+##  tibble         1.4.2      2018-01-22 CRAN (R 3.4.4)                    
+##  tidyr        * 0.8.1      2018-05-18 CRAN (R 3.4.4)                    
+##  tidyselect     0.2.4      2018-02-26 CRAN (R 3.4.4)                    
+##  tools          3.4.3      2017-12-06 local                             
+##  utf8           1.1.4      2018-05-24 CRAN (R 3.4.4)                    
+##  utils        * 3.4.3      2017-12-06 local                             
+##  viridisLite    0.3.0      2018-02-01 CRAN (R 3.4.3)                    
+##  withr          2.1.2      2018-07-07 Github (jimhester/withr@fe56f20)  
+##  xfun           0.3        2018-07-06 CRAN (R 3.4.4)                    
+##  yaml           2.1.19     2018-05-01 CRAN (R 3.4.4)</code></pre>
+<div id="referencias" class="section level1 unnumbered">
+<h1>Referências</h1>
+<div id="refs" class="references">
+<div id="ref-alvares2014">
+<p>Alvares, Clayton Alcarde, Italo Ramos Cegatta, Lucas Augusto Abra Vieira, Rafaela de Freitas Pavani, Eduardo Moré Mattos, Paulo Cesar Sentelhas, José Luiz Stape, and Ronaldo Viana Soares. 2014. “Perigo de Incêndio Florestal: Aplicação Da Fórmula de Monte Alegre E Avaliação Do Histórico Para Piracicaba, Sp.” <em>Scientia Forestalis, Piracicaba</em> 42 (104): 511–22.</p>
+</div>
+<div id="ref-soares1972">
+<p>Soares, Ronaldo Viana. 1972. “Determinação de Um índice de Perigo de Incêndio Para a Região Centro Paranaense, Brasil. Turrialba, Costa Rica, Catie/Iica,. 72 P.” PhD thesis, Tese de Mestrado.</p>
+</div>
+</div>
+</div>
