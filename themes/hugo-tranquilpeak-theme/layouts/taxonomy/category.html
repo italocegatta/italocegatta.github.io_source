@@ -11,13 +11,19 @@
                {{ if eq .Params.covermeta "out" }}hasCoverMetaOut{{ else }}hasCoverMetaIn{{ end }}
                {{ with .Params.coverCaption }}hasCoverCaption{{ end }}">
         {{ if or (not (isset .Site.Params "categoryPagination")) (.Site.Params.categoryPagination) }}
-          <section class="postShorten-group main-content-wrap">
-            {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
-            {{ range $paginator.Pages }}
-              {{ .Render "summary" }}
+        <section class="postShorten-group main-content-wrap">
+          <h2>
+            Category: {{ .Title }}
+            {{ with .RSSLink }}
+            <a class="rss-icon" href="{{ . }}"><i class="fa fa-rss-square"></i></a>
             {{ end }}
-            {{ partial "pagination.html" . }}
-          </section>
+          </h2>
+          {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
+          {{ range $paginator.Pages }}
+          {{ .Render "summary" }}
+          {{ end }}
+          {{ partial "pagination.html" . }}
+        </section>
         {{ else }}
           <div id="archives" class="main-content-wrap">
             <form id="filter-form" action="#">

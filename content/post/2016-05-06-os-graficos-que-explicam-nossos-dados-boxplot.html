@@ -7,11 +7,10 @@ tags:
   - dplyr
   - tidyr
   - ggplot2
-  - ggthemes
 categories:
   - Gráficos
-thumbnailImage: http://i.imgur.com/1BbJSMj.png
-coverImage: http://i.imgur.com/qdrAptA.png
+thumbnailImage: "http://i.imgur.com/1BbJSMj.png"
+coverImage: "http://i.imgur.com/qdrAptA.png"
 coverCaption: "Imagem: https://www.leansigmacorporation.com"
 thumbnailImagePosition: top
 metaAlignment: center
@@ -34,7 +33,7 @@ p_load(readr, dplyr, tidyr, ggplot2, ggthemes)</code></pre>
 dados</code></pre>
 <pre><code>## # A tibble: 2,100 x 5
 ##    Tratamento Individuo Coleta Local   Galhas
-##    &lt;chr&gt;          &lt;int&gt;  &lt;int&gt; &lt;chr&gt;    &lt;int&gt;
+##    &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
 ##  1 Actara d1          1      1 Peciolo      1
 ##  2 Actara d1          2      1 Peciolo     NA
 ##  3 Actara d1          3      1 Peciolo     NA
@@ -62,7 +61,7 @@ total</code></pre>
 <pre><code>## # A tibble: 140 x 3
 ## # Groups:   Tratamento [7]
 ##    Tratamento Individuo Galhas
-##    &lt;chr&gt;          &lt;int&gt;  &lt;int&gt;
+##    &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt;
 ##  1 Actara d1          1     11
 ##  2 Actara d1          2     NA
 ##  3 Actara d1          3      4
@@ -76,20 +75,20 @@ total</code></pre>
 ## # ... with 130 more rows</code></pre>
 <p>O boxplot é um gráfico unidimensional, ou seja, precisamos de apenas uma variável para construí-lo. Entretanto, podemos usar variáveis categóricas para servir de agrupamento e replicar o gráfico para todos os níveis da variável. Por exemplo, no nosso banco de dados temos <code>Galhas</code> como variável quantitativa e <code>Tratamento</code>, <code>Coleta</code> e <code>Local</code> como variável qualitativa.</p>
 <pre class="r"><code>ggplot(total, aes(&quot;Total&quot;, Galhas)) +
-  geom_boxplot() +
-  theme_few()</code></pre>
+  geom_boxplot(fill = &quot;grey60&quot;, alpha = 0.8) +
+  theme_bw()</code></pre>
 <div class="figure"><span id="fig:4-boxplot-total"></span>
-<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-total-1.png" alt="Boxplot que mostra o nº de galhas de todos os tratamentos." width="4000" />
+<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-total-1.svg" alt="Boxplot que mostra o nº de galhas de todos os tratamentos." width="960" />
 <p class="caption">
 Figura  1: Boxplot que mostra o nº de galhas de todos os tratamentos.
 </p>
 </div>
 <p>A Figura <a href="#fig:4-boxplot-total">1</a> dá uma visão geral de todas as observações em um único boxplot, mas não nos explica muita coisa. No caso da Figura <a href="#fig:4-boxplot-trat">2</a>, <code>Tratamento</code> tratamento é uma variável categórica e nos permite subdividir os boxplots para todos os níveis e assim podemos compará-los.</p>
 <pre class="r"><code>ggplot(total, aes(Tratamento, Galhas)) +
-  geom_boxplot() +
-  theme_few()</code></pre>
+  geom_boxplot(fill = &quot;grey60&quot;, alpha = 0.8) +
+  theme_bw(16)</code></pre>
 <div class="figure"><span id="fig:4-boxplot-trat"></span>
-<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-trat-1.png" alt="Boxplot que mostra o nº de galhas em função de cada tratamento." width="4000" />
+<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-trat-1.svg" alt="Boxplot que mostra o nº de galhas em função de cada tratamento." width="960" />
 <p class="caption">
 Figura  2: Boxplot que mostra o nº de galhas em função de cada tratamento.
 </p>
@@ -109,7 +108,7 @@ local</code></pre>
 <pre><code>## # A tibble: 420 x 4
 ## # Groups:   Tratamento, Individuo [140]
 ##    Tratamento Individuo Local   Galhas
-##    &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;    &lt;int&gt;
+##    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
 ##  1 Actara d1          1 Caule        2
 ##  2 Actara d1          1 Nervura      3
 ##  3 Actara d1          1 Peciolo      6
@@ -122,11 +121,11 @@ local</code></pre>
 ## 10 Actara d1          4 Caule       NA
 ## # ... with 410 more rows</code></pre>
 <pre class="r"><code>ggplot(local, aes(Tratamento, Galhas, fill = Local)) +
-  geom_boxplot() +
-  theme_few() +
-  scale_fill_brewer(palette = &quot;Spectral&quot;)</code></pre>
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = &quot;Spectral&quot;) +
+  theme_bw(16)</code></pre>
 <div class="figure"><span id="fig:4-boxplot-local"></span>
-<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-local-1.png" alt="Boxplot que mostra o nº de galhas por local e tratamento." width="4000" />
+<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-local-1.svg" alt="Boxplot que mostra o nº de galhas por local e tratamento." width="960" />
 <p class="caption">
 Figura  3: Boxplot que mostra o nº de galhas por local e tratamento.
 </p>
@@ -142,7 +141,7 @@ total_coleta</code></pre>
 <pre><code>## # A tibble: 560 x 4
 ## # Groups:   Tratamento, Coleta [28]
 ##    Tratamento Coleta Individuo Galhas
-##    &lt;chr&gt;       &lt;int&gt;     &lt;int&gt;  &lt;int&gt;
+##    &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;
 ##  1 Actara d1       2         1      3
 ##  2 Actara d1       2         2     NA
 ##  3 Actara d1       2         3     NA
@@ -155,13 +154,13 @@ total_coleta</code></pre>
 ## 10 Actara d1       2        10     NA
 ## # ... with 550 more rows</code></pre>
 <pre class="r"><code>ggplot(total_coleta, aes(Tratamento, Galhas)) +
-  geom_boxplot() +
+  geom_boxplot(fill = &quot;grey60&quot;, alpha = 0.8, outlier.color = NA) +
   geom_jitter(alpha = 0.4) +
   facet_wrap(~Coleta) +
-  theme_few() +
-  theme(axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 0.5))</code></pre>
+  theme_bw(16) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))</code></pre>
 <div class="figure"><span id="fig:4-boxplot-coleta"></span>
-<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-coleta-1.png" alt="Boxplot que mostra a dispersão do total de galhas por tratamento e coletas." width="4000" />
+<img src="/post/2016-05-06-os-graficos-que-explicam-nossos-dados-boxplot_files/figure-html/4-boxplot-coleta-1.svg" alt="Boxplot que mostra a dispersão do total de galhas por tratamento e coletas." width="960" />
 <p class="caption">
 Figura  4: Boxplot que mostra a dispersão do total de galhas por tratamento e coletas.
 </p>
@@ -169,71 +168,83 @@ Figura  4: Boxplot que mostra a dispersão do total de galhas por tratamento e c
 <p>É importante destacar que o gráfico da Figura <a href="#fig:4-boxplot-coleta">4</a> não é adequado para esse tipo de informação. Nesse caso seria mais interessante um gráfico de linhas em que cada linha representa um tratamento (veremos esse gráfico em um futuro post).</p>
 <p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.</p>
 <pre class="r"><code>devtools::session_info()</code></pre>
-<pre><code>##  setting  value                       
-##  version  R version 3.4.3 (2017-11-30)
+<pre><code>## - Session info ----------------------------------------------------------
+##  setting  value                       
+##  version  R version 3.5.1 (2018-07-02)
+##  os       Windows 10 x64              
 ##  system   x86_64, mingw32             
 ##  ui       RTerm                       
 ##  language (EN)                        
 ##  collate  Portuguese_Brazil.1252      
+##  ctype    Portuguese_Brazil.1252      
 ##  tz       America/Sao_Paulo           
-##  date     2018-03-24                  
+##  date     2018-12-30                  
 ## 
-##  package      * version    date       source                            
-##  assertthat     0.2.0      2017-04-11 CRAN (R 3.4.3)                    
-##  backports      1.1.2      2017-12-13 CRAN (R 3.4.3)                    
-##  base         * 3.4.3      2017-12-06 local                             
-##  bindr          0.1.1      2018-03-13 CRAN (R 3.4.4)                    
-##  bindrcpp     * 0.2        2017-06-17 CRAN (R 3.4.3)                    
-##  blogdown       0.5        2018-01-24 CRAN (R 3.4.4)                    
-##  bookdown       0.7        2018-02-18 CRAN (R 3.4.4)                    
-##  cli            1.0.0      2017-11-05 CRAN (R 3.4.3)                    
-##  colorspace     1.3-2      2016-12-14 CRAN (R 3.4.3)                    
-##  compiler       3.4.3      2017-12-06 local                             
-##  crayon         1.3.4      2017-09-16 CRAN (R 3.4.3)                    
-##  curl           3.1        2017-12-12 CRAN (R 3.4.3)                    
-##  datasets     * 3.4.3      2017-12-06 local                             
-##  devtools       1.13.5     2018-02-18 CRAN (R 3.4.3)                    
-##  digest         0.6.15     2018-01-28 CRAN (R 3.4.3)                    
-##  dplyr        * 0.7.4      2017-09-28 CRAN (R 3.4.3)                    
-##  evaluate       0.10.1     2017-06-24 CRAN (R 3.4.3)                    
-##  ggplot2      * 2.2.1.9000 2018-03-25 Github (tidyverse/ggplot2@3c9c504)
-##  ggthemes     * 3.4.0      2017-02-19 CRAN (R 3.4.3)                    
-##  glue           1.2.0      2017-10-29 CRAN (R 3.4.3)                    
-##  graphics     * 3.4.3      2017-12-06 local                             
-##  grDevices    * 3.4.3      2017-12-06 local                             
-##  grid           3.4.3      2017-12-06 local                             
-##  gtable         0.2.0      2016-02-26 CRAN (R 3.4.3)                    
-##  highr          0.6        2016-05-09 CRAN (R 3.4.3)                    
-##  hms            0.4.2      2018-03-10 CRAN (R 3.4.4)                    
-##  htmltools      0.3.6      2017-04-28 CRAN (R 3.4.3)                    
-##  knitr          1.20       2018-02-20 CRAN (R 3.4.4)                    
-##  labeling       0.3        2014-08-23 CRAN (R 3.4.1)                    
-##  lazyeval       0.2.1      2017-10-29 CRAN (R 3.4.3)                    
-##  magrittr       1.5        2014-11-22 CRAN (R 3.4.3)                    
-##  memoise        1.1.0      2017-04-21 CRAN (R 3.4.3)                    
-##  methods      * 3.4.3      2017-12-06 local                             
-##  munsell        0.4.3      2016-02-13 CRAN (R 3.4.3)                    
-##  pacman       * 0.4.6      2017-05-14 CRAN (R 3.4.3)                    
-##  pillar         1.2.1      2018-02-27 CRAN (R 3.4.4)                    
-##  pkgconfig      2.0.1      2017-03-21 CRAN (R 3.4.3)                    
-##  plyr           1.8.4      2016-06-08 CRAN (R 3.4.3)                    
-##  purrr          0.2.4      2017-10-18 CRAN (R 3.4.3)                    
-##  R6             2.2.2      2017-06-17 CRAN (R 3.4.3)                    
-##  RColorBrewer   1.1-2      2014-12-07 CRAN (R 3.4.1)                    
-##  Rcpp           0.12.16    2018-03-13 CRAN (R 3.4.4)                    
-##  readr        * 1.1.1      2017-05-16 CRAN (R 3.4.3)                    
-##  rlang          0.2.0.9001 2018-03-25 Github (r-lib/rlang@870a6bf)      
-##  rmarkdown      1.9        2018-03-01 CRAN (R 3.4.4)                    
-##  rprojroot      1.3-2      2018-01-03 CRAN (R 3.4.3)                    
-##  scales         0.5.0.9000 2018-02-11 Github (hadley/scales@d767915)    
-##  stats        * 3.4.3      2017-12-06 local                             
-##  stringi        1.1.7      2018-03-12 CRAN (R 3.4.4)                    
-##  stringr        1.3.0      2018-02-19 CRAN (R 3.4.4)                    
-##  tibble         1.4.2      2018-01-22 CRAN (R 3.4.3)                    
-##  tidyr        * 0.8.0      2018-01-29 CRAN (R 3.4.3)                    
-##  tools          3.4.3      2017-12-06 local                             
-##  utf8           1.1.3      2018-01-03 CRAN (R 3.4.3)                    
-##  utils        * 3.4.3      2017-12-06 local                             
-##  withr          2.1.2      2018-03-25 Github (jimhester/withr@79d7b0d)  
-##  xfun           0.1        2018-01-22 CRAN (R 3.4.4)                    
-##  yaml           2.1.18     2018-03-08 CRAN (R 3.4.4)</code></pre>
+## - Packages --------------------------------------------------------------
+##  package      * version    date       lib source                        
+##  assertthat     0.2.0      2017-04-11 [1] CRAN (R 3.5.1)                
+##  backports      1.1.2      2017-12-13 [1] CRAN (R 3.5.0)                
+##  base64enc      0.1-3      2015-07-28 [1] CRAN (R 3.5.0)                
+##  bindr          0.1.1      2018-03-13 [1] CRAN (R 3.5.1)                
+##  bindrcpp     * 0.2.2      2018-03-29 [1] CRAN (R 3.5.1)                
+##  blogdown       0.9        2018-10-23 [1] CRAN (R 3.5.2)                
+##  bookdown       0.9        2018-12-21 [1] CRAN (R 3.5.2)                
+##  callr          3.0.0      2018-08-24 [1] CRAN (R 3.5.1)                
+##  cli            1.0.1      2018-09-25 [1] CRAN (R 3.5.1)                
+##  colorspace     1.3-2      2016-12-14 [1] CRAN (R 3.5.1)                
+##  crayon         1.3.4      2017-09-16 [1] CRAN (R 3.5.1)                
+##  curl           3.2        2018-03-28 [1] CRAN (R 3.5.1)                
+##  desc           1.2.0      2018-05-01 [1] CRAN (R 3.5.1)                
+##  devtools       2.0.1      2018-10-26 [1] CRAN (R 3.5.1)                
+##  digest         0.6.18     2018-10-10 [1] CRAN (R 3.5.1)                
+##  dplyr        * 0.7.8      2018-11-10 [1] CRAN (R 3.5.1)                
+##  evaluate       0.12       2018-10-09 [1] CRAN (R 3.5.1)                
+##  fansi          0.4.0      2018-10-05 [1] CRAN (R 3.5.1)                
+##  fs             1.2.6      2018-08-23 [1] CRAN (R 3.5.1)                
+##  ggplot2      * 3.1.0      2018-10-25 [1] CRAN (R 3.5.1)                
+##  ggthemes     * 4.0.1      2018-08-24 [1] CRAN (R 3.5.1)                
+##  glue           1.3.0      2018-07-17 [1] CRAN (R 3.5.1)                
+##  gtable         0.2.0      2016-02-26 [1] CRAN (R 3.5.1)                
+##  highr          0.7        2018-06-09 [1] CRAN (R 3.5.1)                
+##  hms            0.4.2      2018-03-10 [1] CRAN (R 3.5.1)                
+##  htmltools      0.3.6      2017-04-28 [1] CRAN (R 3.5.1)                
+##  knitr          1.20       2018-02-20 [1] CRAN (R 3.5.1)                
+##  labeling       0.3        2014-08-23 [1] CRAN (R 3.5.0)                
+##  lazyeval       0.2.1      2017-10-29 [1] CRAN (R 3.5.1)                
+##  magrittr       1.5        2014-11-22 [1] CRAN (R 3.5.1)                
+##  memoise        1.1.0      2017-04-21 [1] CRAN (R 3.5.1)                
+##  munsell        0.5.0      2018-06-12 [1] CRAN (R 3.5.1)                
+##  pacman       * 0.5.0      2018-10-22 [1] CRAN (R 3.5.1)                
+##  pillar         1.3.0      2018-07-14 [1] CRAN (R 3.5.1)                
+##  pkgbuild       1.0.2      2018-10-16 [1] CRAN (R 3.5.1)                
+##  pkgconfig      2.0.2      2018-08-16 [1] CRAN (R 3.5.1)                
+##  pkgload        1.0.2      2018-10-29 [1] CRAN (R 3.5.1)                
+##  plyr           1.8.4      2016-06-08 [1] CRAN (R 3.5.1)                
+##  prettyunits    1.0.2      2015-07-13 [1] CRAN (R 3.5.1)                
+##  processx       3.2.0      2018-08-16 [1] CRAN (R 3.5.1)                
+##  ps             1.2.1      2018-11-06 [1] CRAN (R 3.5.1)                
+##  purrr          0.2.5      2018-05-29 [1] CRAN (R 3.5.1)                
+##  R6             2.3.0      2018-10-04 [1] CRAN (R 3.5.1)                
+##  RColorBrewer   1.1-2      2014-12-07 [1] CRAN (R 3.5.0)                
+##  Rcpp           1.0.0      2018-11-07 [1] CRAN (R 3.5.1)                
+##  readr        * 1.2.1      2018-11-22 [1] CRAN (R 3.5.1)                
+##  remotes        2.0.2      2018-10-30 [1] CRAN (R 3.5.1)                
+##  rlang          0.3.0.1    2018-10-25 [1] CRAN (R 3.5.1)                
+##  rmarkdown      1.10       2018-06-11 [1] CRAN (R 3.5.1)                
+##  rprojroot      1.3-2      2018-01-03 [1] CRAN (R 3.5.1)                
+##  scales         1.0.0      2018-08-09 [1] CRAN (R 3.5.1)                
+##  sessioninfo    1.1.1      2018-11-05 [1] CRAN (R 3.5.1)                
+##  stringi        1.2.4      2018-07-20 [1] CRAN (R 3.5.1)                
+##  stringr        1.3.1      2018-05-10 [1] CRAN (R 3.5.1)                
+##  testthat       2.0.1      2018-10-13 [1] CRAN (R 3.5.1)                
+##  tibble         1.4.2      2018-01-22 [1] CRAN (R 3.5.1)                
+##  tidyr        * 0.8.2      2018-10-28 [1] CRAN (R 3.5.1)                
+##  tidyselect     0.2.5      2018-10-11 [1] CRAN (R 3.5.1)                
+##  usethis        1.4.0.9000 2018-09-29 [1] Github (r-lib/usethis@1e3c6a6)
+##  utf8           1.1.4      2018-05-24 [1] CRAN (R 3.5.1)                
+##  withr          2.1.2      2018-03-15 [1] CRAN (R 3.5.1)                
+##  xfun           0.4        2018-10-23 [1] CRAN (R 3.5.1)                
+##  yaml           2.2.0      2018-07-25 [1] CRAN (R 3.5.1)                
+## 
+## [1] C:/Users/Italo/Documents/R/win-library/3.5
+## [2] C:/Program Files/R/R-3.5.1/library</code></pre>

@@ -4,8 +4,8 @@ date: 2017-09-03
 author: Ítalo Cegatta
 categories:
   - Data Science
-thumbnailImage: http://i.imgur.com/4rVgcIx.png
-coverImage: http://i.imgur.com/D3g04TC.png
+thumbnailImage: "http://i.imgur.com/4rVgcIx.png"
+coverImage: "http://i.imgur.com/D3g04TC.png"
 coverCaption:
 thumbnailImagePosition: top
 metaAlignment: center

@@ -12,18 +12,15 @@ tags:
 categories:
   - Modelos
   - Gráficos
-thumbnailImage: http://i.imgur.com/49gZOJL.png
-coverImage: http://i.imgur.com/SxgnspJ.png
+thumbnailImage: "http://i.imgur.com/49gZOJL.png"
+coverImage: "http://i.imgur.com/SxgnspJ.png"
 thumbnailImagePosition: top
 metaAlignment: center
 coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Ajustar um modelo linear ou não linear é algo relativamente simples no R. Mas em muitos casos precisamos ajustá-lo para vários fatores e dependendo da quantidade isso se torna uma tarefa chata. Se você, assim como eu, já precisou fazer isso no Excel, sabe o que é perder mais que uma tarde copiando e colando informações entres abas e planilhas.   
@@ -54,11 +51,11 @@ dados
 
 Nosso objetivo é simples: ajustar um modelo hipsométrico para cada espécie e em seguida predizer as alturas das árvores. A Figura \@ref(fig:9-dap-h) mostra a relação que teríamos se fosse ajustado apenas um modelo para todas as espécies. 
 
-```{r 9-dap-h, fig.cap="Relação entre o diâmetro e a altura sem destinção de espécie."}
+```{r 9-dap-h, fig.cap="Relação entre o diâmetro e a altura sem distinção de espécie."}
 ggplot(dados, aes(DAP_cm, H_m)) +
   geom_point(alpha=0.4) +
   geom_smooth(method="lm") +
-  theme_bw()
+  theme_bw(16)
 ```
 
 Mas na prática, a relação diâmetro-altura é diferente entre espécie, como pode ser notado na Figura \@ref(fig:9-dap-h-spp). Talvez fique mais evidente a diferença observando os coeficientes dos modelos que serão ajustados a seguir.
@@ -68,7 +65,7 @@ ggplot(dados, aes(DAP_cm, H_m)) +
   geom_point(alpha=0.4) +
   geom_smooth(method="lm") +
   facet_wrap(~Esp) +
-  theme_bw()
+  theme_bw(16)
 ```
 
 A primeira etapa é entender que um data.frame pode conter vários tipos de elementos, como números, caracteres, listas e também outros data.frames. Para isso utilizaremos a função `nest()` do pacote `tidyr` e aninharemos os dados em função das espécies.
@@ -134,6 +131,6 @@ dados_compl
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "tidyr", "broom", "purrr"))
 ```
 

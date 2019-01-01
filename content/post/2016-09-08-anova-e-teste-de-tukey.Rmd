@@ -6,24 +6,20 @@ tags:
   - readr
   - dplyr
   - ggplot2
-  - ggthemes
   - car
   - agricolae
 categories:
   - Teste Estatístico
   - Gráficos
-thumbnailImage: http://i.imgur.com/8qoe7KU.png
-coverImage: http://i.imgur.com/tgENr1X.png
+thumbnailImage: "http://i.imgur.com/8qoe7KU.png"
+coverImage: "http://i.imgur.com/tgENr1X.png"
 thumbnailImagePosition: top
 metaAlignment: center
 coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Análise de variância (ANOVA) e testes de médias são métodos comuns em artigos científicos. Você com certeza já viu aquelas letrinhas indicando a diferença entre tratamentos em algum estudo publicado. Por mais que este método esteja entrando em desuso - há uma tendência em abandonar esse tipo de abordagem estatística - penso que ainda o veremos por muitos anos no meio científico.
@@ -36,7 +32,7 @@ Pois bem, para percebermos a dimensão dos dados e qual a variabilidade de cada 
 
 ```{r}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, dplyr, tibble, ggplot2, ggthemes, car, agricolae)
+pacman::p_load(readr, dplyr, tibble, ggplot2, car, agricolae)
 ```
 
 ```{r, message=FALSE}
@@ -49,9 +45,8 @@ dados
 
 ```{r 10-boxplot, fig.cap="Variabilidade do volume por hectare de cada tratamento."}
 ggplot(dados, aes(progenie, volume)) +
-  geom_boxplot() +
-  theme_bw() +
-  theme_few()
+  geom_boxplot(fill = "grey60", alpha = 0.8) +
+  theme_bw(16)
 ```
 
 A ANOVA é um método bastante consolidado no meio acadêmico. Basicamente, este método informa se existe um tratamento discrepante dentre os demais. Entretanto, ele exige que algumas premissas sejam atendidas, como: distribuição normal dos resíduos e homogeneidade de variância. 
@@ -97,16 +92,17 @@ Para deixar mais visual ainda, podemos construir um gráfico de barras com a mé
 ```{r 10-barras-tukey, fig.cap="Médias dos tratamentos. As letras indicam médias estatisticamente iguais pelo teste de Tukey a 5% de significância."}
 tukey$groups %>% 
   rownames_to_column(var = "trt") %>% 
-  ggplot(aes(reorder(trt, volume, function(x) -mean(x)), volume)) +
-    geom_bar(stat = "identity") +
+  mutate(trt = reorder(trt, -volume, mean)) %>% 
+  ggplot(aes(trt, volume)) +
+    geom_col(alpha = 0.8, color = "black") +
     geom_text(aes(label = groups), vjust = 1.8, size = 9, color = "white") +
     labs(x = "Progênies", y = "Médias") +
-    theme_few()
+    theme_bw(16)
 ```
 
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "tibble", "ggplot2", "car", "agricolae"))
 ```
 

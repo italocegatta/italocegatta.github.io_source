@@ -9,11 +9,10 @@ tags:
   - stringr
   - ggplot2
   - ggridges
-  - ggthemes
 categories:
   - Gráficos
-thumbnailImage: http://i.imgur.com/2dknuoK.png
-coverImage: http://i.imgur.com/UU1PCcJ.png
+thumbnailImage: "http://i.imgur.com/2dknuoK.png"
+coverImage: "http://i.imgur.com/UU1PCcJ.png"
 coverCaption:
 thumbnailImagePosition: top
 metaAlignment: center
@@ -21,13 +20,10 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE,
-  fig.width = 12, fig.height = 8, dpi = 400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
-No dia 31 de dezembro de 2016 o Posto Meteorológico da [ESALQ/USP](http://www.esalq.usp.br/departamentos/leb/posto/) completou 100 anos de funcionamento. Em 'comemoração' a este belo banco de dados, pretendo fazer alguns gráficos para analisar, sem muita pretensão, como o clima variou de lá pra cá.
+No dia 31 de dezembro de 2016 o Posto Meteorológico da [ESALQ/USP](http://www.esalq.usp.br/departamentos/leb/posto/) completou 100 anos de funcionamento. Em "comemoração"" a este belo banco de dados, pretendo fazer alguns gráficos para analisar, sem muita pretensão, como o clima variou de lá pra cá.
 
 No site do Posto podemos encontrar os dados nas escalas diária e mensal. Separei apenas os [dados mensais](http://www.esalq.usp.br/departamentos/leb/postocon.html) para vermos aqui. Fiz algumas poucas adaptações no banco para poder pelo menos iniciar a análise. Não considerei nenhuma consistência e preenchimento de falhas (tem bastante, o que é completamente compreensível!).
 
@@ -35,7 +31,7 @@ Minha primeira movimentação é criar colunas para identificar o ano e as déca
 
 ```{r}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, dplyr, RcppRoll, lubridate, stringr, ggplot2, ggridges, ggthemes)
+pacman::p_load(readr, dplyr, RcppRoll, lubridate, stringr, ggplot2, ggridges)
 ```
 
 ```{r}
@@ -64,7 +60,8 @@ clima %>%
   scale_fill_viridis_c() +
   scale_x_continuous(breaks = seq(0,700, 30)) +
   scale_y_discrete(labels = format(ISOdate(2000, 12:1, 1), "%b")) +
-  theme_few()
+  theme_bw(16) +
+  theme(panel.grid.minor = element_blank())
 ```
 
 E qual a década que mais choveu? Como variou a chuva anual ao longo desses 100 anos? Primeiro precisamos calcular quanto choveu em cada década. Em seguida vamos calcular quanto choveu em cada ano e juntar as duas informações. No gráfico abaixo, representei a média da década numa linha de tendência suavizada. Notem que a seca de 2014 Não foi a maior do século, houveram outros 4 anos mais secos desde de 1917. 
@@ -92,67 +89,67 @@ clima %>%
       y = "Precipitação anual (mm)"
     ) +
     scale_x_continuous(breaks = seq(1917, 2017, 10)) +
-    theme_bw()
+    theme_bw(16)
 ```
 
 Passando para a temperatura média, podemos construir um painel com a densidade de probabilidade para valores que variam entre 12,5 a 27,7 (amplitude dos dados).
 
 ```{r}
 ggplot(clima, aes(t_med)) +
-  geom_density() +
+  geom_density(fill = "cadetblue", alpha = 0.8) +
   facet_wrap(~ano) +
   labs(
-    x = "Temperatura média mensal (ºC)",
+    x = "Temperatura média mensal (°C)",
     y = "Densidade"
   ) +
-  theme_few(base_size = 9)
+  theme_bw(9)
 ```
 
 Considerando as décadas, podemos fazer um gráfico um pouco mais simples para facilitar a visualização. Agora, cada década tem sua distribuição de probabilidade. Aparentemente, a calda da direita está se deslocando para maiores temperaturas.
 
-```{r}
+```{r, dev="png"}
 ggplot(clima, aes(t_med, factor(decada), fill = ..x..)) +
   geom_density_ridges_gradient(show.legend = FALSE, color = "white") +
   labs(
-    x = "Temperatura média mensal (ºC)",
+    x = "Temperatura média mensal (°C)",
     y = "Década"
   ) +
   scale_fill_viridis_c() +
-  theme_few(base_size = 9)
+  theme_bw(9)
 ```
 
 E quanto a variação da temperatura nos meses do ano? Quanto podemos esperar de frio ou calor em cada mês?
 
-```{r}
+```{r, dev="png"}
 clima %>% 
   mutate(mes = month(data)) %>% 
   ggplot(aes(t_med, rev(factor(mes)),  fill = ..x..)) +
   geom_density_ridges_gradient(color = "white", show.legend = FALSE) +
   labs(
-    x = "Temperatura média mensal (ºC)",
+    x = "Temperatura média mensal (°C)",
     y = "Mês"
   ) +
   scale_fill_viridis_c() +
   scale_x_continuous(breaks = seq(0,40, 4)) +
   scale_y_discrete(labels = format(ISOdate(2000, 12:1, 1), "%b")) +
-  theme_few()
+  theme_bw(16)
 ```
 
 Podemos também visualizar a amplitude da temperatura máxima e mínima ao longo dos anos.
 
 ```{r, fig.width=13}
 ggplot(clima, aes(month(data))) +
-  geom_ribbon(aes(ymax = t_max, ymin = t_min)) +
+  geom_ribbon(aes(ymax = t_max, ymin = t_min), alpha = 0.8) +
   facet_wrap(~ano) +
   labs(
     x = "Mês",
-    y = "Amplitude da temperatura mínima e máxima mensal (ºC)"
+    y = "Amplitude da temperatura mínima e máxima mensal (°C)"
   ) +
   scale_x_continuous(
     breaks = seq(1, 12, 2), 
     labels = format(ISOdate(2000, seq(1, 12, 2), 1), "%b")
   ) +
-  theme_few(10)
+  theme_bw(10)
 ```
 
 Para finalizar, vamos calcular a média móvel de 30 anos para a temperatura média. Sem dúvida, dos anos 90 pra cá a temperatura média só vem subindo. A minha grande dúvida é: como será que a produção de alimentos e biomassa vai se comportar com essa mudança de clima? Será um grande desafio para a nossa geração, sem dúvida.
@@ -168,17 +165,17 @@ clima_normal <- clima %>%
 
 ggplot(clima_normal, aes(t_med_movel, ano)) +
   geom_path() +
-  geom_point() +
+  geom_point(shape = 21, color = "white", fill = "black", alpha = 0.8, size = 4) +
     labs(
-    x = "Média móvel da temperatura média (ºC)",
+    x = "Média móvel da temperatura média (°C)",
     y = "Ano"
   ) +
   scale_y_reverse(breaks = seq(1940, 2017, by = 5)) +
-  theme_bw()
+  theme_bw(16)
 ```
 
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "RcppRoll", "lubridate", "stringr", "ggridges"))
 ```

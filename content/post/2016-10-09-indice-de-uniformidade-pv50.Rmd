@@ -11,8 +11,8 @@ categories:
   - PV50
 bibliography: ["bib/biblio.bib"]
 link-citations: true
-thumbnailImage: http://i.imgur.com/IvEZeXd.png
-coverImage: http://i.imgur.com/jFQYdwi.png
+thumbnailImage: "http://i.imgur.com/IvEZeXd.png"
+coverImage: "http://i.imgur.com/jFQYdwi.png"
 coverCaption: "Imagem: Hakamada (2015)"
 thumbnailImagePosition: top
 metaAlignment: center
@@ -20,10 +20,7 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 O PV50 é hoje o índice mais utilizado quando queremos expressar a uniformidade de um plantio florestal. @Hakamada2012 apresentou um estudo detalhado sobre diversos índices e concluiu que o PV50 é o índice mais indicado para explicar a relação entre uniformidade, qualidade silvicultural e produtividade em plantios homogêneos de *Eucalyptus*.
@@ -94,7 +91,7 @@ PV50 <- soma_metade / soma_todas * 100
 PV50
 ```
 
-O resultado deveria ser 50, mas como o número de árvores é impar, o R arredonda a posição 5,5 para 5 e pega até a quinta árvore no momento em que queremos somar as 50% menores. Para contornar isso, vamos calcular a soma das 50% menores árvores de uma forma diferente. Primeiro calculamos a soma acumulada e depois extraímos a média (semelhante ao modo de se calcular uma mediana).
+O resultado deveria ser 50, mas como o número de árvores é ímpar, o R arredonda a posição 5,5 para 5 e pega até a quinta árvore no momento em que queremos somar as 50% menores. Para contornar isso, vamos calcular a soma das 50% menores árvores de uma forma diferente. Primeiro calculamos a soma acumulada e depois extraímos a média (semelhante ao modo de se calcular uma mediana).
 
 ```{r}
 # vetor de soma acumulada
@@ -255,11 +252,11 @@ ggplot(dados_pv50, aes(I_meses, Vol_ha, color = Esp)) +
     y = Volume~m^3~ha^-1
   ) +
   scale_color_brewer(palette = "Set1") +
-  theme_bw(base_size = 16) +
+  theme_bw(16) +
   theme(legend.justification = "top")
 ```
 
-Agora podemos construir um gráfico que relaciona o PV50 e a idade (Figura \@ref(fig:12-pv50-idade)). A interpretação do índice é simples, o PV50 representa a porcentagem em volume que as 50% menores árvores contribuem para o volume total. Em nossos dados, *E. dunnii*, ao 85 meses de idade, tem um PV50 de aproximadamente 26. Isso quer dizer que aos 7 anos, as 50% menores árvores da parcela de *E. dunnii* representam apenas 26% do volume total. Ou seja, 50% das árvores contribuem muito pouco para o volume total da parcela e isso tem um impacto direto na produtividade.
+Agora podemos construir um gráfico que relaciona o PV50 e a idade (Figura \@ref(fig:12-pv50-idade)). A interpretação do índice é simples, o PV50 representa a porcentagem em volume que as 50% menores árvores contribuem para o volume total. Em nossos dados, *E. dunnii*, aos 85 meses de idade, tem um PV50 de aproximadamente 26. Isso quer dizer que aos 7 anos, as 50% menores árvores da parcela de *E. dunnii* representam apenas 26% do volume total. Ou seja, 50% das árvores contribuem muito pouco para o volume total da parcela e isso tem um impacto direto na produtividade.
 
 ```{r 12-pv50-idade, fig.cap="Variação do PV50 por espécies em função da idade."}
 ggplot(dados_pv50, aes(I_meses, PV50, color = Esp)) +
@@ -268,11 +265,11 @@ ggplot(dados_pv50, aes(I_meses, PV50, color = Esp)) +
   labs(color = "Espécies", x = "Idade (meses)", y = "PV50") +
   scale_color_brewer(palette = "Set1") +
   scale_y_continuous(breaks = seq(10, 30, 2)) +
-  theme_bw(base_size = 16) +
+  theme_bw(16) +
   theme(legend.justification = "top")
 ```
 
-A Figura \@ref(fig:12-pv50-vol) mostra claramente a relação direta que há entre produção de madeira e a uniformidade ao longo do crescimento da floresta. Note também que na medida em que a idade avança, a uniformidade diminui, pois a dominância das árvores maiores sobre as menores fica cada vez mais forte.
+A Figura \@ref(fig:12-pv50-vol) mostra claramente a relação direta que há entre produção de madeira e a uniformidade ao longo do crescimento da floresta. Note também que na medida em que a idade avança, a uniformidade diminui, uma vez que a dominância das árvores maiores sobre as menores fica cada vez mais forte.
 
 ```{r 12-pv50-vol, fig.cap="Relação entre o PV50 e volume por hectare em função da idade."}
 ggplot(dados_pv50, aes(Vol_ha, PV50)) +
@@ -281,7 +278,7 @@ ggplot(dados_pv50, aes(Vol_ha, PV50)) +
   facet_wrap(~Esp, dir = "v") +
   labs(color = "Idade (meses)", x = Volume~m^3~ha^-1, y = "PV50") +
   scale_color_brewer(palette = "Dark2") +
-  theme_bw(base_size = 16) +
+  theme_bw(16) +
   theme(legend.justification = "top")
 ```
 
@@ -299,14 +296,14 @@ ggplot(dados_pv50, aes(I_meses, Vol_ha, color = Esp)) +
     y = Volume~m^3~ha^-1
   ) +
   scale_color_brewer(palette = "Set1") +
-  theme_bw(base_size = 16) +
+  theme_bw(16) +
   theme(legend.justification = "top")
 ```
 
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "forcats"))
 ```
 
 # Referências

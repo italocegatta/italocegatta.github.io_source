@@ -14,7 +14,7 @@ coverMeta: out
 
 Algumas situações me motivaram a criar esse site e alimentá-lo como um blog. Provavelmente os motivos para que eu o continue atualizando vão mudar e na medida que isso acontecer, atualizarei esse post.
 
-Quando este blog começou, eu estava em um intercâmbio na Universidade de Lisboa e aproveitando para iniciar o desenvolvimento do meu Trabalho de Conclusão de Curso. A proposta do TCC foi construir um pacote no R para cálculo de índices de competição de árvores individuais.Para um florestal essa não é uma tarefa fácil, pois meu curso não tem relação com tecnologia da informações ou computação
+Quando este blog começou, eu estava em um intercâmbio na Universidade de Lisboa e aproveitando para iniciar o desenvolvimento do meu Trabalho de Conclusão de Curso. A proposta do TCC foi construir um pacote no R para cálculo de índices de competição de árvores individuais.Para um florestal essa não é uma tarefa fácil, pois meu curso não tem relação com tecnologia da informações ou ciência da computação.
 
 Tiva ideia de criar o blog numa terça-feira, na quarta ele já estava online. As principais motivações foram:
 
@@ -24,7 +24,8 @@ Tiva ideia de criar o blog numa terça-feira, na quarta ele já estava online. A
 
 * Eu sempre quis programar com o R Markdown. Escrever os posts no R com o RStudio vão me ajudar a adquirir experiencia com essa linguagem.
 
-* Eu já havia criado alguns sites no Wix e DokuWiki, mas queira conhecer outras plataformas. Comecei o blog no Wordpress.com, mas a publicação de códigos é muito limitada e não pode ser automatizada. Com Jekyll e Github Pages eu consigo editar e publicar os posts diretamente do R, sem muito esforço e com muita flexibilidade. 
+* Eu já havia criado alguns sites no Wix e DokuWiki, mas queira conhecer outras plataformas. Comecei o blog no Wordpress.com, mas a publicação de códigos é muito limitada e não pode ser automatizada. Com Hugo, Blogdown e Github Pages eu consigo editar e publicar os posts diretamente do R, sem muito esforço e com muita flexibilidade. 
+
 * E por último, mas não menos importante, espero que os posts possam ajudar as pessoas a resolverem problemas parecidos. Durante todo o tempo em que trabalho com o R (e tantos outros assuntos do dia a dia) preciso recorrer a fóruns e blogs para conseguir avançar. Nesse sentido, tentar ajudar os outros que estão com problemas semelhantes aos que eu tive no passado é o mínimo que posso fazer em respeito à todos aqueles que, anonimamente, me ajudaram.
 
 Um forte abraço a todos e vamos aos posts sobre o R, Floresta e Data Science.

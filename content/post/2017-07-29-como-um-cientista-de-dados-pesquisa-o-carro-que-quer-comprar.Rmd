@@ -12,8 +12,8 @@ tags:
   - fipe
 categories:
   - Data Science
-thumbnailImage: http://i.imgur.com/1gZcM9L.png
-coverImage: http://i.imgur.com/d1eBDPc.png
+thumbnailImage: "http://i.imgur.com/1gZcM9L.png"
+coverImage: "http://i.imgur.com/d1eBDPc.png"
 coverCaption:
 thumbnailImagePosition: top
 metaAlignment: center
@@ -21,10 +21,7 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE,
-  fig.width = 12, fig.height = 8, dpi = 400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Estou naquela parte da vida em que se planeja comprar um carro. Como eu sou, acima de todos os sonhos, pão duro, decidir qual marca, modelo, versão e ano do veículo não vai ser fácil. Pensando nisso resolvi escrever um pacote no R para me ajudar a tomar esta decisão. O objetivo deste post é apresentar o pacote e as funções que auxiliam na coleta das informações da tabela [FIPE](http://veiculos.fipe.org.br/).
@@ -33,7 +30,7 @@ Para aqueles que já passaram pela etapa de compra ou venda de um carro, provave
 
   > A Tabela Fipe expressa preços médios de veículos no mercado nacional, servindo apenas como um parâmetro para negociações ou avaliações. Os preços efetivamente praticados variam em função da região, conservação, cor, acessórios ou qualquer outro fator que possa influenciar as condições de oferta e procura por um veículo específico.
   
-A motivação para este pacote foi exclusivamente pessoal e por isso a utilização das funções está bastante restrita. Por isso, se alguém quiser ajudar no desenvolvimento do pacote é só chegar e mandar um [Pull Request](https://github.com/italocegatta/fipe) no Github, contribuições serão muito bem vindas.
+A motivação para este pacote foi exclusivamente pessoal e por isso a utilização das funções está bastante restrita. Por isso, se alguém quiser ajudar no desenvolvimento do pacote é só chegar e mandar um [Pull Request](https://github.com/italocegatta/fipe) no Github, contribuições serão muito bem-vindas.
 
 Primeiro vou mostrar as funções e o workflow idealizado para o pacote. Queremos saber, por enquanto, o preço atual de uma BMW X6 M ano 2015. O primeiro passo é definir o mês de referência que se deseja consultar o preço do veículo. A FIPE disponibiliza os valores consolidados desde janeiro de 2001. 
 
@@ -76,7 +73,7 @@ fipe(cod_ref = 215, cod_marca = 7, cod_modelo = 5189, cod_ano = "2015-1") %>%
   glimpse()
 ```
 
-Achamos o preço do carro que eu queria. Apenas R$ 368 mil. Uma pechincha. Obviamente, saber quanto vale uma BMW X6 não faz diferênça alguma no meu dia. Um abraço pra quem tem condições de comprar um carro desse sem precisar vender um rim.
+Achamos o preço do carro que eu queria. Apenas R$ 368 mil. Uma pechincha. Obviamente, saber quanto vale uma BMW X6 não faz diferença alguma no meu dia. Um abraço pra quem tem condições de comprar um carro desse sem precisar vender um rim.
 
 Agora que já conhecemos as funções e o fluxo para consultar o valor dos carros, vamos ampliar a consulta e justificar as horas que passamos aprendendo a programar. Já sabemos o preço do X6 M em julho/2017, mas e nos meses anteriores? Como será que foi a depreciação média do carro usado nos últimos meses? E os outros modelos X6, quanto será que estão valendo?
 
@@ -149,5 +146,5 @@ consulta %>%
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "purrr", "stringr", "tidyr", "forcats", "fipe"))
 ```

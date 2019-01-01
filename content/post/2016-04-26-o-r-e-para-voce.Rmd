@@ -36,10 +36,10 @@ O projeto do R teve início com Ross Ihaka e Robert Gentleman nos anos 90 a part
 
 O R tem uma curva de aprendizado um tanto íngreme, no começo é realmente muito frustrante. Uma vez, me lembro de passar horas para conseguir deixar a legenda com as cores que eu queria. Dá vontade de largar tudo e fazer o gráfico no Excel. Mas se você é um pouco persistente no começo e encara como um desafio, as coisas melhoram e essa etapa logo passa.
 
-Minha formação é em Eng. Florestal, na grade curricular do meu curso não há nada relacionado à lógica e conceitos de programação, ou seja, tive que me motivar muito para aprender a programar, por que para mim abstrair a lógica de um código ou rotina em R não foi (e nem é) fácil. De fato, não é todo mundo que sabe programar e nem por isso se torna um mal profissional, pois há vários softwares que possuem uma interface gráfica totalmente adaptada para o usuário em forma de botões e cliques. Mas com muita certeza, os profissionais que podem programar tem um horizonte de possibilidades devido a flexibilidade de poder escrever seu próprio programa de processamento.
+Minha formação é em Eng. Florestal, na grade curricular do meu curso não há nada relacionado à lógica e conceitos de programação, ou seja, tive que me motivar muito para aprender a programar. Para mim, abstrair a lógica de um código ou rotina em R não foi (e nem é) fácil. De fato, não é todo mundo que sabe programar e nem por isso se torna um mal profissional, pois há vários softwares que possuem uma interface gráfica totalmente adaptada para o usuário em forma de botões e cliques. Mas com muita certeza, os profissionais que podem programar têm um horizonte de possibilidades muito maior devido a flexibilidade de poder escrever seu próprio programa de processamento.
 
 
-Costumo dizer para os meus amigos que o grande trunfo de um programador é a preguiça. Eu particularmente sou bem preguiçoso quando tenho de fazer atividades repetitivas. A Figura \@ref(fig:geek-task) ilustra bem uma situação que já ocorreu comigo muitas vezes, onde meus amigos (e até minha namorada!) faziam processos repetitivos usando o Excel, enquanto eu só conseguia pensar em como fazer aquilo de uma forma rápida e eficiente no R.
+Costumo dizer para os meus amigos que o grande trunfo de um programador é a preguiça. Eu particularmente sou bem preguiçoso quando tenho de fazer atividades repetitivas. A Figura \@ref(fig:geek-task) ilustra bem uma situação que já ocorreu comigo muitas vezes, onde meus amigos faziam processos repetitivos usando o Excel, enquanto eu só conseguia pensar em como fazer aquilo de uma forma rápida e eficiente no R.
 
 ```{r geek-task, echo=FALSE, fig.cap="Programadores versus não-programadores quando fazem tarefas repetitivas [@iwaya_geeks_2012]."}
 knitr::include_graphics("http://i.imgur.com/e8otnTl.png")
@@ -56,7 +56,7 @@ Se você concorda com essas afirmações, pense bem antes de dedicar seu tempo n
 
 No meu caso, o SAS resolve a maioria dos problemas relacionados ao processamento de dados e análise estatística de um florestal. Então, a decisão nesse sentido tem que ser bem pontual e depende essencialmente das tarefas que você realiza. Para mim, o R sai na frente por ser uma linguagem livre e com um grupo de desenvolvedores muito grande, o que possibilita a criação de diversas funcionalidades de vanguarda. Outro trunfo do R é a integração com outros softwares e linguagens, que nos possibilita criar aplicações web e em servidores.
 
-Para fechar o tópico, se as suas tarefas estão relacionadas à análise e processamento de dados e você sente que perde um tempo em atividades repetitivas, talvez seja preciso rever o método. Programando você fará as coisas de forma rapida, considere isso como um investimento a longo prazo.
+Para fechar o tópico, se as suas tarefas estão relacionadas à análise e processamento de dados e você sente que perde um tempo em atividades repetitivas, talvez seja preciso rever o método. Programando você fará as coisas de forma rápida, considere isso como um investimento a longo prazo.
 
 ## Por onde eu começo?
 

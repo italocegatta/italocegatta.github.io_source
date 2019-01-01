@@ -7,8 +7,8 @@ tags:
   - leaflet
 categories:
   - IDW
-thumbnailImage: http://i.imgur.com/bgVjrnT.png
-coverImage: http://i.imgur.com/44t3NQ0.png
+thumbnailImage: "http://i.imgur.com/bgVjrnT.png"
+coverImage: "http://i.imgur.com/44t3NQ0.png"
 coverCaption:
 thumbnailImagePosition: top
 metaAlignment: center
@@ -17,10 +17,7 @@ coverMeta: out
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 É comum quando temos um determinado valor distribuído espacialmente e queremos estimá-lo para um ponto específico. Existem inúmeras formas de se chegar nesta estimativa, mas quero mostrar apenas uma neste post. O objetivo é estimar o quanto choveu em Itapetininga-SP, a partir de dados de chuva de outras 6 cidades próximas. Utilizaremos para isso os dados das estações automáticas do [INMET](http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesAutomaticas).
@@ -41,7 +38,7 @@ dados <- read_csv2(
 dados
 ```
 
-O mapa a seguir mostra o total de chuva resgistrado pela estação meteorológica de cada cidade no dia 26/04/2017. Nosso objetivo é estimar o quanto choveu em Itapetininga utilizando a interpolação pelo inverso do quadrado da distância ou IDW (Inverse Distance Weighting).
+O mapa a seguir mostra o total de chuva registrado pela estação meteorológica de cada cidade no dia 26/04/2017. Nosso objetivo é estimar o quanto choveu em Itapetininga utilizando a interpolação pelo inverso do quadrado da distância ou IDW (Inverse Distance Weighting).
 
 ```{r, out.width='100%', out.height='500'}
 leaflet(dados) %>% 
@@ -70,7 +67,6 @@ A expressão que define o método é dada abaixo. Basicamente considera-se o val
 onde: xp = valor interpolado; xi = valor da i-ésimo ponto vizinho; di = distância entre o i-ésimo ponto de vizinho e o ponto de interesse.
 
 Agora que já definimos o método, vamos começar os cálculos. O primeiro valor calculado será a distância entre os pontos. Utilizaremos a formula de Haversine que retorna a distâncias entre dois pontos de uma esfera a partir de suas latitudes e longitudes.
-
 
 ```{r}
 haversine <- function(lon1, lat1, lon2, lat2) {
@@ -127,7 +123,7 @@ dados_itape <- dist %>%
 dados_itape
 ```
 
-Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetiniga, de acordo com a interpolação por IDW.
+Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetininga de acordo com a interpolação por IDW.
 <br>
 <br>
 ```{r, out.width='100%', out.height='500', echo=FALSE}
@@ -152,6 +148,6 @@ leaflet(dados_itape) %>%
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "leaflet"))
 ```
 

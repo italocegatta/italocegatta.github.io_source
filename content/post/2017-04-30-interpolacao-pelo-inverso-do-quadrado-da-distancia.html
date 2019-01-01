@@ -7,8 +7,8 @@ tags:
   - leaflet
 categories:
   - IDW
-thumbnailImage: http://i.imgur.com/bgVjrnT.png
-coverImage: http://i.imgur.com/44t3NQ0.png
+thumbnailImage: "http://i.imgur.com/bgVjrnT.png"
+coverImage: "http://i.imgur.com/44t3NQ0.png"
 coverCaption:
 thumbnailImagePosition: top
 metaAlignment: center
@@ -20,10 +20,9 @@ coverMeta: out
 <link href="/rmarkdown-libs/leaflet/leaflet.css" rel="stylesheet" />
 <script src="/rmarkdown-libs/leaflet/leaflet.js"></script>
 <link href="/rmarkdown-libs/leafletfix/leafletfix.css" rel="stylesheet" />
-<link href="/rmarkdown-libs/leaflet-label/leaflet.label.css" rel="stylesheet" />
-<script src="/rmarkdown-libs/leaflet-label/leaflet.label.js"></script>
 <script src="/rmarkdown-libs/Proj4Leaflet/proj4-compressed.js"></script>
 <script src="/rmarkdown-libs/Proj4Leaflet/proj4leaflet.js"></script>
+<link href="/rmarkdown-libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
 <script src="/rmarkdown-libs/leaflet-binding/leaflet.js"></script>
 
 
@@ -40,13 +39,13 @@ dados</code></pre>
 <pre><code>## # A tibble: 6 x 4
 ##   cidade               lon   lat     p
 ##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 Sorocaba           -47.6 -23.4  27.0
+## 1 Sorocaba           -47.6 -23.4  27  
 ## 2 Itapeva            -48.9 -24.0  33.4
 ## 3 Sao Miguel Arcanjo -48.2 -23.9  34.6
 ## 4 Avare              -48.9 -23.1  18.2
 ## 5 Piracicaba         -47.6 -22.7  30.8
 ## 6 Barra Bonita       -48.6 -22.5  42.8</code></pre>
-<p>O mapa a seguir mostra o total de chuva resgistrado pela estação meteorológica de cada cidade no dia 26/04/2017. Nosso objetivo é estimar o quanto choveu em Itapetininga utilizando a interpolação pelo inverso do quadrado da distância ou IDW (Inverse Distance Weighting).</p>
+<p>O mapa a seguir mostra o total de chuva registrado pela estação meteorológica de cada cidade no dia 26/04/2017. Nosso objetivo é estimar o quanto choveu em Itapetininga utilizando a interpolação pelo inverso do quadrado da distância ou IDW (Inverse Distance Weighting).</p>
 <pre class="r"><code>leaflet(dados) %&gt;% 
   addTiles() %&gt;% 
   addMarkers(-48.0530600, -23.5916700) %&gt;% 
@@ -65,7 +64,7 @@ dados</code></pre>
     )
   )</code></pre>
 <div id="htmlwidget-1" style="width:100%;height:500px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[-23.59167,-48.05306,null,null,null,{"clickable":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},null,null,null,null,null,null,null]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573],[21.6,26.72,27.68,14.56,24.64,34.24],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita"],null,["27","33.4","34.6","18.2","30.8","42.8"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[-23.59167,-48.05306,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},null,null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573],[21.6,26.72,27.68,14.56,24.64,34.24],null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita"],null,["27","33.4","34.6","18.2","30.8","42.8"],{"interactive":false,"permanent":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"className":"","sticky":true},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script>
 <p>A expressão que define o método é dada abaixo. Basicamente considera-se o valor de cada vizinho ponderado pelo inverso da distância entre ele e o ponto de interesse. Assim, vizinhos distantes contribuem com menos peso para o valor final que vizinhos mais próximos.</p>
 <p><img src="http://bit.ly/2oN3IlI" align="center" border="0" alt="x_{p} =\frac{\sum_{i=1}^n(\frac{1}{d_{i}^{2}}\times x_{i})}{\sum_{i=1}^n(\frac{1}{d_{i}^{2}})}" width="153" height="71" /></p>
 <p>onde: xp = valor interpolado; xi = valor da i-ésimo ponto vizinho; di = distância entre o i-ésimo ponto de vizinho e o ponto de interesse.</p>
@@ -98,7 +97,7 @@ dist</code></pre>
 <pre><code>## # A tibble: 6 x 5
 ##   cidade               lon   lat     p d_itape
 ##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
-## 1 Sorocaba           -47.6 -23.4  27.0    51.2
+## 1 Sorocaba           -47.6 -23.4  27      51.2
 ## 2 Itapeva            -48.9 -24.0  33.4    95.3
 ## 3 Sao Miguel Arcanjo -48.2 -23.9  34.6    31.1
 ## 4 Avare              -48.9 -23.1  18.2   106. 
@@ -124,76 +123,94 @@ dados_itape</code></pre>
 <pre><code>## # A tibble: 7 x 5
 ##   cidade               lon   lat     p d_itape
 ##   &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
-## 1 Sorocaba           -47.6 -23.4  27.0    51.2
+## 1 Sorocaba           -47.6 -23.4  27      51.2
 ## 2 Itapeva            -48.9 -24.0  33.4    95.3
 ## 3 Sao Miguel Arcanjo -48.2 -23.9  34.6    31.1
 ## 4 Avare              -48.9 -23.1  18.2   106. 
 ## 5 Piracicaba         -47.6 -22.7  30.8   108. 
 ## 6 Barra Bonita       -48.6 -22.5  42.8   135. 
 ## 7 Itapetininga       -48.1 -23.6  32.1    NA</code></pre>
-<p>Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetiniga, de acordo com a interpolação por IDW. <br> <br> <div id="htmlwidget-2" style="width:100%;height:500px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-2">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"maxNativeZoom":null,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"continuousWorld":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":null,"unloadInvisibleTiles":null,"updateWhenIdle":null,"detectRetina":false,"reuseTiles":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205,-23.59167],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573,-48.05306],[27,33.4,34.6,18.2,30.8,42.8,32.1],null,null,{"lineCap":null,"lineJoin":null,"clickable":true,"pointerEvents":null,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6,"dashArray":null},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita","Itapetininga"],null,["27","33.4","34.6","18.2","30.8","42.8","32.1"],{"clickable":false,"noHide":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"zoomAnimation":true,"className":""},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script></p>
+<p>Muito bom, agora vamos retornar ao mapa e adicionar o quanto choveu em Itapetininga de acordo com a interpolação por IDW. <br> <br> <div id="htmlwidget-2" style="width:100%;height:500px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addCircleMarkers","args":[[-23.426035,-23.981918,-23.852022,-23.101749,-22.703132,-22.471205,-23.59167],[-47.585552,-48.885818,-48.164817,-48.940997,-47.623317,-48.557573,-48.05306],[27,33.4,34.6,18.2,30.8,42.8,32.1],null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.6},null,null,["Sorocaba","Itapeva","Sao Miguel Arcanjo","Avare","Piracicaba","Barra Bonita","Itapetininga"],null,["27","33.4","34.6","18.2","30.8","42.8","32.1"],{"interactive":false,"permanent":true,"direction":"bottom","opacity":1,"offset":[5,-10],"textsize":"10px","textOnly":true,"style":{"color":"white"},"className":"","sticky":true},null]}],"limits":{"lat":[-23.981918,-22.471205],"lng":[-48.940997,-47.585552]}},"evals":[],"jsHooks":[]}</script></p>
 <p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.</p>
-<pre class="r"><code>devtools::session_info()</code></pre>
-<pre><code>##  setting  value                       
-##  version  R version 3.4.3 (2017-11-30)
+<pre class="r"><code>sessioninfo::session_info(c(&quot;readr&quot;, &quot;dplyr&quot;, &quot;leaflet&quot;))</code></pre>
+<pre><code>## - Session info ----------------------------------------------------------
+##  setting  value                       
+##  version  R version 3.5.1 (2018-07-02)
+##  os       Windows 10 x64              
 ##  system   x86_64, mingw32             
 ##  ui       RTerm                       
 ##  language (EN)                        
 ##  collate  Portuguese_Brazil.1252      
+##  ctype    Portuguese_Brazil.1252      
 ##  tz       America/Sao_Paulo           
-##  date     2018-03-24                  
+##  date     2018-12-31                  
 ## 
-##  package     * version    date       source                          
-##  assertthat    0.2.0      2017-04-11 CRAN (R 3.4.3)                  
-##  backports     1.1.2      2017-12-13 CRAN (R 3.4.3)                  
-##  base        * 3.4.3      2017-12-06 local                           
-##  bindr         0.1.1      2018-03-13 CRAN (R 3.4.4)                  
-##  bindrcpp    * 0.2        2017-06-17 CRAN (R 3.4.3)                  
-##  blogdown      0.5        2018-01-24 CRAN (R 3.4.4)                  
-##  bookdown      0.7        2018-02-18 CRAN (R 3.4.4)                  
-##  cli           1.0.0      2017-11-05 CRAN (R 3.4.3)                  
-##  compiler      3.4.3      2017-12-06 local                           
-##  crayon        1.3.4      2017-09-16 CRAN (R 3.4.3)                  
-##  crosstalk     1.0.0      2016-12-21 CRAN (R 3.4.3)                  
-##  curl          3.1        2017-12-12 CRAN (R 3.4.3)                  
-##  datasets    * 3.4.3      2017-12-06 local                           
-##  devtools      1.13.5     2018-02-18 CRAN (R 3.4.3)                  
-##  digest        0.6.15     2018-01-28 CRAN (R 3.4.3)                  
-##  dplyr       * 0.7.4      2017-09-28 CRAN (R 3.4.3)                  
-##  evaluate      0.10.1     2017-06-24 CRAN (R 3.4.3)                  
-##  glue          1.2.0      2017-10-29 CRAN (R 3.4.3)                  
-##  graphics    * 3.4.3      2017-12-06 local                           
-##  grDevices   * 3.4.3      2017-12-06 local                           
-##  hms           0.4.2      2018-03-10 CRAN (R 3.4.4)                  
-##  htmltools     0.3.6      2017-04-28 CRAN (R 3.4.3)                  
-##  htmlwidgets   1.0        2018-01-20 CRAN (R 3.4.3)                  
-##  httpuv        1.3.6.2    2018-03-02 CRAN (R 3.4.4)                  
-##  jsonlite      1.5        2017-06-01 CRAN (R 3.4.3)                  
-##  knitr         1.20       2018-02-20 CRAN (R 3.4.4)                  
-##  leaflet     * 1.1.0      2017-02-21 CRAN (R 3.4.3)                  
-##  magrittr      1.5        2014-11-22 CRAN (R 3.4.3)                  
-##  memoise       1.1.0      2017-04-21 CRAN (R 3.4.3)                  
-##  methods     * 3.4.3      2017-12-06 local                           
-##  mime          0.5        2016-07-07 CRAN (R 3.4.1)                  
-##  pacman      * 0.4.6      2017-05-14 CRAN (R 3.4.3)                  
-##  pillar        1.2.1      2018-02-27 CRAN (R 3.4.4)                  
-##  pkgconfig     2.0.1      2017-03-21 CRAN (R 3.4.3)                  
-##  R6            2.2.2      2017-06-17 CRAN (R 3.4.3)                  
-##  Rcpp          0.12.16    2018-03-13 CRAN (R 3.4.4)                  
-##  readr       * 1.1.1      2017-05-16 CRAN (R 3.4.3)                  
-##  rlang         0.2.0.9001 2018-03-25 Github (r-lib/rlang@870a6bf)    
-##  rmarkdown     1.9        2018-03-01 CRAN (R 3.4.4)                  
-##  rprojroot     1.3-2      2018-01-03 CRAN (R 3.4.3)                  
-##  shiny         1.0.5      2017-08-23 CRAN (R 3.4.3)                  
-##  stats       * 3.4.3      2017-12-06 local                           
-##  stringi       1.1.7      2018-03-12 CRAN (R 3.4.4)                  
-##  stringr       1.3.0      2018-02-19 CRAN (R 3.4.4)                  
-##  tibble        1.4.2      2018-01-22 CRAN (R 3.4.3)                  
-##  tools         3.4.3      2017-12-06 local                           
-##  utf8          1.1.3      2018-01-03 CRAN (R 3.4.3)                  
-##  utils       * 3.4.3      2017-12-06 local                           
-##  withr         2.1.2      2018-03-25 Github (jimhester/withr@79d7b0d)
-##  xfun          0.1        2018-01-22 CRAN (R 3.4.4)                  
-##  xtable        1.8-2      2016-02-05 CRAN (R 3.4.3)                  
-##  yaml          2.1.18     2018-03-08 CRAN (R 3.4.4)</code></pre>
+## - Packages --------------------------------------------------------------
+##  package      * version  date       lib source        
+##  assertthat     0.2.0    2017-04-11 [1] CRAN (R 3.5.1)
+##  base64enc      0.1-3    2015-07-28 [1] CRAN (R 3.5.0)
+##  BH             1.66.0-1 2018-02-13 [1] CRAN (R 3.5.0)
+##  bindr          0.1.1    2018-03-13 [1] CRAN (R 3.5.1)
+##  bindrcpp     * 0.2.2    2018-03-29 [1] CRAN (R 3.5.1)
+##  cli            1.0.1    2018-09-25 [1] CRAN (R 3.5.1)
+##  clipr          0.4.1    2018-06-23 [1] CRAN (R 3.5.1)
+##  colorspace     1.3-2    2016-12-14 [1] CRAN (R 3.5.1)
+##  crayon         1.3.4    2017-09-16 [1] CRAN (R 3.5.1)
+##  crosstalk      1.0.0    2016-12-21 [1] CRAN (R 3.5.1)
+##  digest         0.6.18   2018-10-10 [1] CRAN (R 3.5.1)
+##  dplyr        * 0.7.8    2018-11-10 [1] CRAN (R 3.5.1)
+##  fansi          0.4.0    2018-10-05 [1] CRAN (R 3.5.1)
+##  ggplot2        3.1.0    2018-10-25 [1] CRAN (R 3.5.1)
+##  glue           1.3.0    2018-07-17 [1] CRAN (R 3.5.1)
+##  gridExtra      2.3      2017-09-09 [1] CRAN (R 3.5.1)
+##  gtable         0.2.0    2016-02-26 [1] CRAN (R 3.5.1)
+##  hms            0.4.2    2018-03-10 [1] CRAN (R 3.5.1)
+##  htmltools      0.3.6    2017-04-28 [1] CRAN (R 3.5.1)
+##  htmlwidgets    1.3      2018-09-30 [1] CRAN (R 3.5.1)
+##  httpuv         1.4.5    2018-07-19 [1] CRAN (R 3.5.1)
+##  jsonlite       1.6      2018-12-07 [1] CRAN (R 3.5.2)
+##  labeling       0.3      2014-08-23 [1] CRAN (R 3.5.0)
+##  later          0.7.5    2018-09-18 [1] CRAN (R 3.5.1)
+##  lattice        0.20-35  2017-03-25 [2] CRAN (R 3.5.1)
+##  lazyeval       0.2.1    2017-10-29 [1] CRAN (R 3.5.1)
+##  leaflet      * 2.0.2    2018-08-27 [1] CRAN (R 3.5.1)
+##  magrittr       1.5      2014-11-22 [1] CRAN (R 3.5.1)
+##  markdown       0.8      2017-04-20 [1] CRAN (R 3.5.1)
+##  MASS           7.3-50   2018-04-30 [2] CRAN (R 3.5.1)
+##  Matrix         1.2-14   2018-04-13 [2] CRAN (R 3.5.1)
+##  mgcv           1.8-24   2018-06-23 [2] CRAN (R 3.5.1)
+##  mime           0.6      2018-10-05 [1] CRAN (R 3.5.1)
+##  munsell        0.5.0    2018-06-12 [1] CRAN (R 3.5.1)
+##  nlme           3.1-137  2018-04-07 [2] CRAN (R 3.5.1)
+##  pillar         1.3.1    2018-12-15 [1] CRAN (R 3.5.2)
+##  pkgconfig      2.0.2    2018-08-16 [1] CRAN (R 3.5.1)
+##  plogr          0.2.0    2018-03-25 [1] CRAN (R 3.5.1)
+##  plyr           1.8.4    2016-06-08 [1] CRAN (R 3.5.1)
+##  png            0.1-7    2013-12-03 [1] CRAN (R 3.5.0)
+##  promises       1.0.1    2018-04-13 [1] CRAN (R 3.5.1)
+##  purrr          0.2.5    2018-05-29 [1] CRAN (R 3.5.1)
+##  R6             2.3.0    2018-10-04 [1] CRAN (R 3.5.1)
+##  raster         2.8-4    2018-11-03 [1] CRAN (R 3.5.1)
+##  RColorBrewer   1.1-2    2014-12-07 [1] CRAN (R 3.5.0)
+##  Rcpp           1.0.0    2018-11-07 [1] CRAN (R 3.5.1)
+##  readr        * 1.2.1    2018-11-22 [1] CRAN (R 3.5.1)
+##  reshape2       1.4.3    2017-12-11 [1] CRAN (R 3.5.1)
+##  rlang          0.3.0.1  2018-10-25 [1] CRAN (R 3.5.1)
+##  scales         1.0.0    2018-08-09 [1] CRAN (R 3.5.1)
+##  shiny          1.2.0    2018-11-02 [1] CRAN (R 3.5.1)
+##  sourcetools    0.1.7    2018-04-25 [1] CRAN (R 3.5.1)
+##  sp             1.3-1    2018-06-05 [1] CRAN (R 3.5.1)
+##  stringi        1.2.4    2018-07-20 [1] CRAN (R 3.5.1)
+##  stringr        1.3.1    2018-05-10 [1] CRAN (R 3.5.1)
+##  tibble         1.4.2    2018-01-22 [1] CRAN (R 3.5.1)
+##  tidyselect     0.2.5    2018-10-11 [1] CRAN (R 3.5.1)
+##  utf8           1.1.4    2018-05-24 [1] CRAN (R 3.5.1)
+##  viridis        0.5.1    2018-03-29 [1] CRAN (R 3.5.1)
+##  viridisLite    0.3.0    2018-02-01 [1] CRAN (R 3.5.1)
+##  withr          2.1.2    2018-03-15 [1] CRAN (R 3.5.1)
+##  xtable         1.8-3    2018-08-29 [1] CRAN (R 3.5.1)
+##  yaml           2.2.0    2018-07-25 [1] CRAN (R 3.5.1)
+## 
+## [1] C:/Users/Italo/Documents/R/win-library/3.5
+## [2] C:/Program Files/R/R-3.5.1/library</code></pre>

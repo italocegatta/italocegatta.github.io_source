@@ -11,18 +11,15 @@ tags:
 categories:
   - Gráficos
   - PCA
-thumbnailImage: http://i.imgur.com/OPrvWib.png
-coverImage: http://i.imgur.com/YH4OI6J.png
+thumbnailImage: "http://i.imgur.com/OPrvWib.png"
+coverImage: "http://i.imgur.com/YH4OI6J.png"
 thumbnailImagePosition: top
 metaAlignment: center
 coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Quando temos dados multivariados, a análise de componentes principais (PCA) é um recurso muito interessante e relativamente simples, em termos de conceito teórico e interpretação prática. Para exemplificar, vamos trabalhar com os dados climáticos de algumas cidades brasileiras. Os dados climáticos foram compilados a partir de estações automáticas do [INMET](http://www.inmet.gov.br/portal/index.php?r=estacoes/estacoesautomaticas). 
@@ -43,7 +40,7 @@ dados <- read_csv2(
 print(dados, n=31)
 ```
 
-A análise de componentes principais nos mostra o quanto cada grupo de variáveis explicam a variabilidade total dados. No nosso caso, o primeiro componente responde por 72% da variabilidade e tem efeito quase que igual da temperatura (Tmed), evapotranspiração (ETP) e déficit hídrico (DEF). O segundo componente é majoritariamente o efeito da chuva (PPT). Juntos, os dois componente explicam 95% dos dados.
+A análise de componentes principais nos mostra o quanto cada grupo de variáveis explicam a variabilidade total dados. No nosso caso, o primeiro componente responde por 72% da variabilidade e tem efeito quase que igual da temperatura (Tmed), evapotranspiração (ETP) e déficit hídrico (DEF). O segundo componente é majoritariamente o efeito da chuva (PPT). Juntos, os dois componentes explicam 95% dos dados.
 
 ```{r}
 pca <- select(dados, Tmed:DEF) %>%
@@ -90,6 +87,6 @@ ggbiplot(pca) +
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "ggrepel", "ggbiplot"))
 ```
 

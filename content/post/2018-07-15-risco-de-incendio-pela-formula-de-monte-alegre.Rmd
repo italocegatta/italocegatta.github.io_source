@@ -22,10 +22,7 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE,
-  fig.width = 8, fig.height = 4, dpi = 400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 No setor florestal o fogo é uma questão recorrente e preocupante. Utilizar um índice de risco ou perigo de incêndio ajuda, no mínimo, no planejamento e no alerta para quem mora no entorno de maciços florestais como parques, hortos e plantios florestais.
@@ -205,9 +202,9 @@ dados_fma <- base_fma %>%
 dados_fma
 ```
 
-A primeira abordagem que quero mostrar é a evolução do valor FMA ao longo do ano. Considerando o dia do ano ou dia juliano, podemos ver a evolução do valor FMA devido a ausência de chuvas fortes. O máximo dessa "corrida" de risco vai até próximo do dia 290, que corresponde ao meio de outubro.
+A primeira abordagem que quero mostrar é a evolução do valor FMA ao longo do ano. Considerando o dia do ano ou dia juliano, podemos ver a evolução do valor FMA devido á ausência de chuvas fortes. O máximo dessa "corrida" de risco vai até próximo do dia 290, que corresponde ao meio de outubro.
 
-```{r, fig.height=6}
+```{r, fig.height=6, dev="png"}
 dados_fma %>% 
   mutate(
     ano = year(data),
@@ -252,12 +249,12 @@ dados_fma  %>%
   theme_bw()
 ```
 
-Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais acertivo para uma certa região.
+Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais assertivo para uma certa região.
 
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "tidyr", "forcats", "lubridate", "ggridges"))
 ```
 
 # Referências

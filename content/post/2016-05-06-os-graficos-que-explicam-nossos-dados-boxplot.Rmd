@@ -7,11 +7,10 @@ tags:
   - dplyr
   - tidyr
   - ggplot2
-  - ggthemes
 categories:
   - Gráficos
-thumbnailImage: http://i.imgur.com/1BbJSMj.png
-coverImage: http://i.imgur.com/qdrAptA.png
+thumbnailImage: "http://i.imgur.com/1BbJSMj.png"
+coverImage: "http://i.imgur.com/qdrAptA.png"
 coverCaption: "Imagem: https://www.leansigmacorporation.com"
 thumbnailImagePosition: top
 metaAlignment: center
@@ -19,10 +18,7 @@ coverMeta: out
 ---
 
 ```{r set, echo=FALSE, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Nossos dados merecem ser apresentados de forma clara, atraente e inspiradora. Não há nada mais frustrante que dar duro no campo para coletar os dados e depois apresentá-los numa simples tabela de resumos. Podemos e devemos fazer mais, certo?
@@ -69,16 +65,16 @@ O boxplot é um gráfico unidimensional, ou seja, precisamos de apenas uma vari�
 
 ```{r 4-boxplot-total, fig.cap="Boxplot que mostra o nº de galhas de todos os tratamentos."}
 ggplot(total, aes("Total", Galhas)) +
-  geom_boxplot() +
-  theme_few()
+  geom_boxplot(fill = "grey60", alpha = 0.8) +
+  theme_bw()
 ```
 
 A Figura \@ref(fig:4-boxplot-total) dá uma visão geral de todas as observações em um único boxplot, mas não nos explica muita coisa. No caso da Figura \@ref(fig:4-boxplot-trat), `Tratamento` tratamento é uma variável categórica e nos permite subdividir os boxplots para todos os níveis e assim podemos compará-los.
 
 ```{r 4-boxplot-trat, fig.cap="Boxplot que mostra o nº de galhas em função de cada tratamento."}
 ggplot(total, aes(Tratamento, Galhas)) +
-  geom_boxplot() +
-  theme_few()
+  geom_boxplot(fill = "grey60", alpha = 0.8) +
+  theme_bw(16)
 ```
 
 Note que no tratamento *Actara d1*, há um indivíduo discrepante (*outlier*) que se destaca com 30 galhas. Note também a grande variabilidade entre os tratamentos, muito comum em experimentos envolvendo insetos. Normalmente o coeficiente de variação é extremamente alto e dificilmente há homogeneidade de variância. Um comentário interessante sobre o boxplot é que a caixa, valores entre o 1º e  3º quartil, corresponde a 50% das observações. 
@@ -100,9 +96,9 @@ local
 
 ```{r 4-boxplot-local, fig.cap="Boxplot que mostra o nº de galhas por local e tratamento."}
 ggplot(local, aes(Tratamento, Galhas, fill = Local)) +
-  geom_boxplot() +
-  theme_few() +
-  scale_fill_brewer(palette = "Spectral")
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Spectral") +
+  theme_bw(16)
 ```
 
 Uma outra perspectiva é avaliar a evolução do total de galhas por coleta. Para isto basta incluir a variável `Coleta` no agrupamento (Figura \@ref(fig:4-boxplot-coleta)). Para facilitar a visualização, vou excluir a primeira coleta. Podemos ainda adicionar os pontos que representam as observações para poder identificar quantas observações tem cada tratamento.
@@ -119,11 +115,11 @@ total_coleta
 
 ```{r 4-boxplot-coleta, fig.cap="Boxplot que mostra a dispersão do total de galhas por tratamento e coletas."}
 ggplot(total_coleta, aes(Tratamento, Galhas)) +
-  geom_boxplot() +
+  geom_boxplot(fill = "grey60", alpha = 0.8, outlier.color = NA) +
   geom_jitter(alpha = 0.4) +
   facet_wrap(~Coleta) +
-  theme_few() +
-  theme(axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 0.5))
+  theme_bw(16) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 ```
 
 É importante destacar que o gráfico da Figura \@ref(fig:4-boxplot-coleta) não é adequado para esse tipo de informação. Nesse caso seria mais interessante um gráfico de linhas em que cada linha representa um tratamento (veremos esse gráfico em um futuro post).

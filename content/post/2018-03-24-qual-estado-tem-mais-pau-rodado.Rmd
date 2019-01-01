@@ -13,7 +13,6 @@ tags:
   - ggplot2
   - ggrepel
   - geofacet
-  - ggthemes
 categories:
   - Gráficos
 thumbnailImage: http://i.imgur.com/j1kqVed.png
@@ -25,10 +24,7 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE,
-  fig.width = 12, fig.height = 8, dpi = 400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 Em Cuiabá, cidade que nasci e cresci, *pau-rodado* é um substantivo que define pessoas que nasceram em outro Estado mas moram em Cuiabá e ali construíram suas vidas. Aliás, Cuiabá sempre foi conhecida por ser uma Cidade super acolhedora e talvez por isso todos encaram o dito *pau-rodado* de uma forma engraçada e sem qualquer sentido pejorativo.
@@ -41,7 +37,7 @@ Então vamos começar a análise carregando os pacotes do R necessários para es
 
 ```{r}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, dplyr, tidyr, forcats, sf, geosphere, brmap, ggplot2, ggrepel, geofacet, ggthemes)
+pacman::p_load(readr, dplyr, tidyr, forcats, sf, geosphere, brmap, ggplot2, ggrepel, geofacet)
 pacman::p_load_gh("italocegatta/brmap")
 ```
 
@@ -92,7 +88,7 @@ estado_cent <- brmap_estado %>%
   st_centroid() %>% 
   cbind(., st_coordinates(.)) %>% 
   st_set_geometry(NULL) %>% 
-  select(estado, lon = X, lat = Y)
+  select(estado = estado_nome, lon = X, lat = Y)
 
 estado_cent
 ```
@@ -126,8 +122,8 @@ Para deixar o gráfico um pouco mais bonito, vamos dar cor ao valor que estamos 
 
 ```{r}
 fluxo_poligono <- brmap_estado %>% 
-  left_join(df, by =  c("estado" = "reside")) %>% 
-  rename(reside = estado) %>% 
+  left_join(df, by =  c("estado_nome" = "reside")) %>% 
+  rename(reside = estado_nome) %>% 
   filter(nasce %in% estados_interesse) %>% 
   mutate(nasce = fct_relevel(nasce, estados_interesse)) %>% 
   select(nasce, reside, valor)
@@ -141,8 +137,8 @@ Como exemplo vamos interpretar as informações de Roraima: do total de resident
 
 ```{r}
 ggplot() +
-  geom_sf(data = brmap_estado, color = "grey80", fill = "grey95", size = 0.3) +
-  geom_sf(data = fluxo_poligono, aes(fill = valor), color = "grey80", size = 0.3) +
+  geom_sf(data = brmap_estado, color = "white", fill = "grey80", size = 0.3) +
+  geom_sf(data = fluxo_poligono, aes(fill = valor), color = "white", size = 0.3) +
   geom_sf(data = fluxo_linha, color = "cyan", size = 0.3) +
   geom_label_repel(
     data = fluxo_linha,
@@ -157,17 +153,17 @@ ggplot() +
   ) +
   scale_fill_viridis_c(guide = FALSE) +
   coord_sf(datum = NA) +
-  theme_void()
+  theme_void(16)
 ```
 
 Pontos interessantes: 
 
-* Rondônia e Roraima retém uma proporção parecida da população dentro do próprio Estado, entretanto o pessoal que mora em Rondônia veio do Sul e Sudeste; ao passo que os moradores de Roraima vem do AM, PA e MA.
+* Rondônia e Roraima retém uma proporção parecida da população dentro do próprio Estado, entretanto o pessoal que mora em Rondônia veio do Sul e Sudeste; ao passo que os moradores de Roraima vêm do AM, PA e MA.
 * O Distrito Federal não me surpreendeu, grande parte de pessoas nasceram em GO, MG e BA. 
 * Um número expressivo de pessoas que nasceram em São Paulo e hoje moram no CE e PE... parece que o jogo virou, não é mesmo?
 
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("readr", "dplyr", "ggplot2", "tidyr", "forcats", "sf", "geosphere", "ggrepel", "geofacet", "brmap"))
 ```

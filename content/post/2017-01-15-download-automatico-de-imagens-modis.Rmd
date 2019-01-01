@@ -10,8 +10,8 @@ tags:
   - stringr
 categories:
   - MODIS
-thumbnailImage: http://i.imgur.com/HvdCJFR.png
-coverImage: http://i.imgur.com/rIKbCek.png
+thumbnailImage: "http://i.imgur.com/HvdCJFR.png"
+coverImage: "http://i.imgur.com/rIKbCek.png"  
 coverCaption: "Imagem: https://landweb.modaps.eosdis.nasa.gov"
 thumbnailImagePosition: top
 metaAlignment: center
@@ -19,15 +19,12 @@ coverMeta: out
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  warning=FALSE, message=FALSE,
-  fig.width=10, fig.height=8, dpi=400
-)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 ```
 
 O MODIS (MODerate resolution Imaging Spectroradiometer) faz parte de um programa da NASA para monitoramento da superfície terrestre. Os satélites Terra e Aqua fornecem informações muito interessantes para o setor agroflorestal e nos permite entender de maneira bastante eficaz a dinâmica do uso do solo e de crescimento das nossas culturas.
 
-O MODOIS tem diversos [produtos](https://modis.gsfc.nasa.gov/data/), mas neste post vamos tratar especificamente do produto [MOD13Q1](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006), que disponibiliza a cada 16 dias um raster de EVI e NDVI com resolução de 250 m. Bom, se você está acostumado com imagens de satélite/drone/vant com resolução submétrica, pode ser que no primeiro momento esta escala te assuste. Mas vale lembrar que é um serviço gratuito e e de ótima qualidade.
+O MODOIS tem diversos [produtos](https://modis.gsfc.nasa.gov/data/), mas neste post vamos tratar especificamente do produto [MOD13Q1](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006), que disponibiliza a cada 16 dias um raster de EVI e NDVI com resolução de 250 m. Bom, se você está acostumado com imagens de satélite/drone/vant com resolução submétrica, pode ser que no primeiro momento esta escala te assuste. Mas vale lembrar que é um serviço gratuito e de ótima qualidade.
 
 As cenas do MODIS ficam disponíveis em um [ftp](https://e4ftl01.cr.usgs.gov/) e navegando por lá podemos chegar na pasta do produto que nos [interessa](http://e4ftl01.cr.usgs.gov/MOLT/MOD13Q1.006). Temos então imagens de satélite processadas, com correção atmosférica, sem deslocamento espacial e com regularidade. O satélite varre a terra a cada dois dias e as melhores visadas são utilizadas para compor o produto que é disponibilizado a cada 16 dias. Há casos (de baixa frequência) em que a nebulosidade é tanta que não é possível compor a informação do pixel dentro desta janela
 
@@ -55,7 +52,7 @@ scene_days <- page_root %>%
 glimpse(scene_days)
 ```
 
-Muito bem, temos até a data da ultima atualização deste post `r length(scene_days)` cenas disponíveis. O script abaixo cria a pasta com a data da cena e coloca lá os [tiles](https://modis-land.gsfc.nasa.gov/MODLAND_grid.html) de seu interesse. Como exemplo vamos pegar os tiles que cobrem os estados de São Paulo e Bahia. Note que é preciso ter um cadastro para autorizar o download dos arquivos. É simples e rápido de fazer acessando este [link](https://urs.earthdata.nasa.gov/users/new/).
+Muito bem, temos até a data da última atualização deste post `r length(scene_days)` cenas disponíveis. O script abaixo cria a pasta com a data da cena e coloca lá os [tiles](https://modis-land.gsfc.nasa.gov/MODLAND_grid.html) de seu interesse. Como exemplo vamos pegar os tiles que cobrem os estados de São Paulo e Bahia. Note que é preciso ter um cadastro para autorizar o download dos arquivos. É simples e rápido de fazer acessando este [link](https://urs.earthdata.nasa.gov/users/new/).
 
 ```{r, eval=FALSE}
 # inicio do 1º loop - dias
@@ -99,6 +96,7 @@ Como tudo que está neste blog, este script foi escrito para resolver um problem
 Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
 
 ```{r}
-devtools::session_info()
+sessioninfo::session_info(c("dplyr", "xml2", "rvest", "httr", "stringr", "methods"))
+
 ```
 

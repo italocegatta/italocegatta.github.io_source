@@ -103,7 +103,7 @@ for(i in 1:5) {
 Agora precisamos de um fator (nº da coleta) para diferenciarmos cada medição e colocar tudo em um único data frame.
 
 ```{r}
-# Cria um fator para diferenciar as medições medições 
+# Cria um fator para diferenciar as medições
 for(i in names(dados1)) {
   dados1[[i]][ , "Coleta"] = i  
 }
@@ -111,15 +111,12 @@ for(i in names(dados1)) {
 dados1 <- bind_rows(dados1)
 ```
 
-Como minhas análises vão considerar o local da galha como o variável, devo organizar *Peciolo*, *Nervura* e *Caule* em uma só coluna denominada *Local*.
+Como minhas análises vão considerar o local da galha como variável, devo organizar *Peciolo*, *Nervura* e *Caule* em uma só coluna denominada *Local*.
 
 ```{r}
 # Transforma as columas ´Peciolo´, ´Nervura´ e ´Caule´ em uma só coluna
 # denominada ´Local´.
-dados1 <- gather(
-  dados1, "Local",
-  "Galhas", c(Peciolo, Nervura, Caule)
-)
+dados1 <- gather(dados1, "Local", "Galhas", c(Peciolo, Nervura, Caule))
 
 dados1
 ```
