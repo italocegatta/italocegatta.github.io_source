@@ -91,7 +91,7 @@ base_fma %>%
       values = c("#4292c6", "#084594"),
       labels = c("Chuva fraca (<5 mm)","Chuva forte (>5 mm)")
     ) +
-    theme_bw() +
+    theme_bw(16) +
     theme(legend.position = "top", panel.grid.minor.x = element_blank())
 ```
 
@@ -106,7 +106,7 @@ base_fma %>%
     labs(x = "Umidade Relativa às 13h (%)", y = "Mês do ano") +
     scale_x_continuous(breaks = seq(10, 100, 10)) +
     scale_y_discrete(labels = format(ISOdate(2000, 1:12, 1), "%b")) +
-    theme_bw()
+    theme_bw(16)
 ```
 
 Sobre a Fórmula de Monte Alegre, o contexto que motivou seu desenvolvimento foi bastante trágico. Em 1963 um grande incêndio atingiu o estado do Paraná, com centenas de mortes e cerca de 2 milhões de hectares de florestas queimadas. Em 1972 o Professor Ronaldo Soares, da UFPR, defendeu sua tese de mestrado propondo a Fórmula de Monte Alegre com base em registros de incêndios florestais coletados a partir de 1965 na fazenda Monte Alegre (Klabin), em Telêmaco Borba-PR.
@@ -230,7 +230,7 @@ dados_fma  %>%
   labs(x = "Ano", y = "Frequência", fill = "Risco") +
   scale_y_continuous(breaks = seq(0.1, 1, 0.1), labels = scales::percent) +
   scale_fill_brewer(palette = "Spectral", direction = -1) +
-  theme_bw()
+  theme_bw(16)
 ```
 
 Olhando para a frequência de risco dentro dos meses, fica claro o maior risco próximo do mês de agosto, como sugeriram os gráficos de frequências de chuva e umidade relativa.
@@ -246,7 +246,7 @@ dados_fma  %>%
   scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), "%b")) +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_brewer(palette = "Spectral", direction = -1) +
-  theme_bw()
+  theme_bw(16)
 ```
 
 Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais assertivo para uma certa região.

@@ -67,7 +67,7 @@ ggplot(estados_focos, aes(ano, focos)) +
 
 A segunda abordagem é relativamente simples e intuitiva. Construiremos um mapa temático utilizando o Nº de focos como escala de cor, mas organizado em um painel que tem como base o ano de registro. O gráfico \@ref(fig:focos-facet) apela para a dimensão de cor e instantaneamente nos informa o estado mais crítico. Especificamente para esta análise ele este tipo de gráfico é muito apropriado.
 
-```{r focos-facet, fig.cap="Representação em painel utilizando cores."}
+```{r focos-facet, dev="png", fig.cap="Representação em painel utilizando cores."}
 ggplot(estados_focos) +
   geom_sf(aes(fill = focos), color = NA) +
   facet_wrap(~ano) +

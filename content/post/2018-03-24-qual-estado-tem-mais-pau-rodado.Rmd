@@ -135,7 +135,7 @@ Pronto, já temos todos os dados que fazer o gráfico de interesse. Lembrando qu
 
 Como exemplo vamos interpretar as informações de Roraima: do total de residentes, 55.6% nasceram no próprio Estado de Roraima; 5.2%, 6.5% e 19% nasceram no Amazonas, Pará e Maranhão, respectivamente. 
 
-```{r}
+```{r, dev="png"}
 ggplot() +
   geom_sf(data = brmap_estado, color = "white", fill = "grey80", size = 0.3) +
   geom_sf(data = fluxo_poligono, aes(fill = valor), color = "white", size = 0.3) +

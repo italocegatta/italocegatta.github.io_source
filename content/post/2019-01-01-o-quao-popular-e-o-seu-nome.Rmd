@@ -1,0 +1,230 @@
+---
+title: "O quão popular é o seu nome?"
+date: 2019-01-01
+author: Ítalo Cegatta
+tags:
+  - dplyr
+  - ggplot2
+  - purrr
+  - tidyr
+  - forcats
+  - brnome
+  - brmap
+  - wordcloud
+categories:
+  - Data Science
+thumbnailImage: http://i.imgur.com/R2qfpQT.png
+coverImage: http://i.imgur.com/bteFn7P.png
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+No Censo 2010, o IBGE incorporou no levantamento a coleta de nomes (apenas o primeiro) e sobrenome (apenas o último). Para quem é curioso por coisas sem muita utilidade prática (e eu jogo forte nesse time!), vale a pena entrar no site [https://censo2010.ibge.gov.br/nomes](https://censo2010.ibge.gov.br/nomes) e conferir as estatísticas do nome de interesse.
+
+O site é legal, mas eu queria ter os dados na mão para fazer as coisas do meu jeito. Então decidi escrever um pacote no R para acessar os dados da [API](https://servicodados.ibge.gov.br/api/docs/censos/nomes?versao=2) que o IBGE montou para esse banco.
+
+O pacote chama `brnome` e está disponível no meu [Github](https://github.com/italocegatta/brnome).
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, purrr, tidyr, ggplot2, forcats, wordcloud)
+pacman::p_load_gh("italocegatta/brnome")
+pacman::p_load_gh("italocegatta/brmap")
+```
+
+Vamos começar com a função `brnome_freq()` e entender a distribuição espacial e temporal (década de nascimento) do nome da minha queria e sapeca sobrinha, Eliza.
+
+```{r}
+eliza_freq <- brnome_freq(nome = "eliza")
+
+eliza_freq
+```
+
+Notem que as colunas `sexo` e `localidade` estão vazias pois não foram especificadas. Significa que foi considerado homens e mulheres para todo o Brasil.
+
+Será que tem algum homem batizado com o nome Eliza? Tem, e eu não sei se foi de propósito ou um erro de coleta. Fica aí o questionamento hehehehe.
+
+```{r}
+brnome_freq(nome = "eliza", sexo = "m")
+```
+
+A pesquisa também pode ser feita para um determinado município ou estado. Neste caso, você precisa utilizar o código oficial do IBGE para as localidades. Como exemplo vamos ver para Cuiabá (`5103403`) e Mato Grosso (`51`).
+
+```{r}
+brnome_freq(nome = "eliza", sexo  ="f", localidade_cod = 5103403)
+```
+
+```{r}
+brnome_freq(nome = "eliza", sexo  ="f", localidade_cod = 51)
+```
+
+Para consultar os códigos das localidades, o pacote disponibiliza um dataframe para auxiliar neste ponto.
+
+```{r}
+localidades
+```
+
+Bom, consultas simples como está podem ser feitas pelo site do IBGE, mas como somos programadores e temos tempo para fazer essas coisas, vamos ver a frequência do nome Eliza para todos os estados do Brasil. 
+
+```{r}
+eliza_estado <- localidades %>% 
+  filter(tipo == "Estado") %>% 
+  mutate(
+    freq = map(
+      localidade,
+      ~brnome_freq(nome = "Eliza", localidade_cod = .x) 
+    )
+  ) %>% 
+  select(freq) %>% 
+  unnest()
+
+eliza_estado
+```
+
+Primeiro vamos analisar a frequência do nome pela década de nascimento somando os valores de todos os estados.
+
+```{r}
+eliza_estado %>% 
+  group_by(decada_nascimento) %>% 
+  summarise(frequencia = sum(frequencia)) %>% 
+  ggplot(aes(decada_nascimento, frequencia)) +
+    geom_line(size = 2) +
+    geom_point(shape = 21, color = "white", fill =  "#80b1d3", size = 5, stroke = 2) +
+    labs(x = "Década de nascimento", y = "Frequência do nome Eliza") +
+    scale_x_continuous(breaks = seq(1900, 2020, 10)) + 
+    scale_y_continuous(limits = c(0, NA), labels = scales::unit_format(unit = "k", scale = 1e-3)) + 
+    theme_bw(16)
+```
+
+Também podemos ver a distribuição espacial pelos estados do Brasil.
+
+```{r, dev="png"}
+eliza_estado %>% 
+  left_join(brmap_estado, by = c("localidade_nome" = "estado_nome")) %>% 
+  ggplot(aes(fill = frequencia)) +
+    geom_sf(color = "white") +
+    scale_fill_distiller(palette = "Purples", direction = 1) +
+    labs(fill = "Frequência do nome Eliza") +
+    theme_bw(16) +
+    theme(legend.position = "bottom", legend.justification = "right") +
+    guides(fill = guide_colorbar(barwidth = 15, title.position = "top"))
+```
+
+```{r eval=FALSE, include=FALSE}
+# Bem, agora eu realmente quero dar uma passo à frente do site do IBGE e fazer uma mapa com a frequência do nome por município. Entretanto, dessa vez o nome utilizaro será 'Maria', pois, o IBGE só apresenta a frequencia do nome para o município se houverem mais do que 15 contagens. Assim, como o nome 'Eliza' não é muito comum, há poucos municípios (cerca de 120) com dados disponíveis.  
+
+# Como temos 5670 municípios no brasil e a consulta para todos estes itêns demora um pouco, eu já deixei um dataframe
+# pronto, mas mesmo assim o codigo para reproduzí-lo está abaixo. Notem que optei por criar um loop porque as vezes a
+# conexão de internet oscila e dá erro na função, e pelo loop é bem facil de ver onde deu erro e começar a partir dele.
+
+aux_consulta <- localidades %>% 
+  filter(tipo == "Município")
+
+
+maria_municipio_i <- vector("list", nrow(aux_consulta))
+i = 1
+tic <- Sys.time()
+for (i in seq_len(nrow(aux_consulta))) {
+  
+  maria_municipio_i[[i]] <- aux_consulta %>% 
+    slice(i) %>% 
+    mutate(
+      freq = map(
+        localidade,
+        ~brnome_freq(nome = "maria", sexo = "f", localidade_cod = .x)
+      )
+    )
+  
+  if (i %% 50 == 0) {
+    print(paste(paste0(i, "/", nrow(aux_consulta)), "-", format(Sys.time(), "%H:%M")))
+  }
+  
+  Sys.sleep(3)
+}
+toc <- Sys.time(); toc - tic
+
+maria_municipio <- bind_rows(maria_municipio_i) %>% 
+  filter(!map_lgl(freq, is.null)) %>% 
+  select(freq) %>% 
+  unnest()
+```
+
+```{r eval=FALSE, include=FALSE}
+maria_municipio <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/maria_freq.csv", col_types = cols(sexo = col_character(), localidade = col_integer()))
+
+maria_municipio
+```
+
+```{r eval=FALSE, include=FALSE}
+maria_freq <- maria_municipio %>% 
+  group_by(nome, localidade) %>% 
+  summarise(frequencia = sum(frequencia)) %>%  
+  right_join(select(brmap_municipio, cod_municipio, municipio), by = c("localidade" = "cod_municipio"))
+
+library(leaflet)
+
+leaflet(maria_freq) %>% 
+  addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
+  addPolygons()
+
+maria_freq %>% 
+  ggplot(aes(fill = frequencia, color = frequencia)) +
+    geom_sf() +
+    scale_fill_distiller(palette = "Purples", direction = 1) +
+    scale_color_distiller(palette = "Purples", direction = 1) +
+    labs(fill = "Frequência do nome Maria", color = "Frequência do nome Maria") +
+    theme_bw(16) +
+    theme(legend.position = "bottom", legend.justification = "right") +
+    guides(fill = guide_colorbar(barwidth = 15, title.position = "top"))
+```
+
+A segunda função presente no pacote acesso o rank dos nomes mais populares por sexo e década de nascimento e localidade.
+
+```{r, fig.width=16, fig.height=10}
+rank_sexo <- bind_rows(brnome_rank(sexo = "f"), brnome_rank(sexo = "m"))
+
+rank_sexo %>%
+  ggplot(aes(decada_nascimento, rank, fill = frequencia, label = nome)) +
+  geom_line(aes(group = nome), alpha = 0.5) +
+  geom_label(color = "black", size = 3) +
+  facet_wrap(~sexo, labeller = labeller(sexo = c("F" = "Feminino", "M" = "Masculino"))) +
+  labs(x = "Décade de nascimento", y = "Ranking", fill = "Frequência") +
+  scale_y_reverse(breaks = 1:20) +
+  scale_fill_distiller(
+    palette = "PuBuGn", direction = 1, 
+    labels = scales::unit_format(unit = "k", scale = 1e-3)
+  ) +
+  theme_bw(18) +
+  theme(legend.position = "bottom", legend.justification = "right") +
+  guides(fill = guide_colorbar(barwidth = 20, title.position = "top"))
+```
+
+A consulta do rank também pode ser feita por localidade e década, como por exemplo os nomes mais comuns em Cuiabá na década de 1990.
+
+```{r}
+brnome_rank(sexo = "f", localidade_cod = 5103403, decada_nascimento = 1990) %>% 
+  select(nome, localidade_nome, frequencia, rank)
+```
+
+Para finalizar, vamos fazer um gráfico com os nomes mais frequentes em forma de nuvem de palavras.
+
+```{r}
+top_nomes <- rank_sexo %>% 
+  group_by(nome) %>% 
+  summarise(frequencia = sum(frequencia))
+
+set.seed(1)
+wordcloud(top_nomes$nome, top_nomes$frequencia, scale=c(8, 1))
+```
+
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
+
+```{r}
+sessioninfo::session_info(c("readr", "dplyr", "purrr", "tidyr", "ggplot2", "forcats", "brmap", "brnome", "wordcloud"))
+```

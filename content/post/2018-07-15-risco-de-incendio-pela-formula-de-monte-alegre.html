@@ -102,7 +102,7 @@ base_fma</code></pre>
       values = c(&quot;#4292c6&quot;, &quot;#084594&quot;),
       labels = c(&quot;Chuva fraca (&lt;5 mm)&quot;,&quot;Chuva forte (&gt;5 mm)&quot;)
     ) +
-    theme_bw() +
+    theme_bw(16) +
     theme(legend.position = &quot;top&quot;, panel.grid.minor.x = element_blank())</code></pre>
 <p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-4-1.svg" width="960" /></p>
 <p>Olhando para a distribuição da umidade relativa em cada mês, podemos ver que em junho a mediana ainda está próximo dos 50% de umidade. E só em julho que os dias mais secos começam a ter mais frequência e essa tendência aumenta até setembro, depois retorna gradativamente até a mediana de 57% de umidade em dezembro.</p>
@@ -114,7 +114,7 @@ base_fma</code></pre>
     labs(x = &quot;Umidade Relativa às 13h (%)&quot;, y = &quot;Mês do ano&quot;) +
     scale_x_continuous(breaks = seq(10, 100, 10)) +
     scale_y_discrete(labels = format(ISOdate(2000, 1:12, 1), &quot;%b&quot;)) +
-    theme_bw()</code></pre>
+    theme_bw(16)</code></pre>
 <p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-5-1.svg" width="960" /></p>
 <p>Sobre a Fórmula de Monte Alegre, o contexto que motivou seu desenvolvimento foi bastante trágico. Em 1963 um grande incêndio atingiu o estado do Paraná, com centenas de mortes e cerca de 2 milhões de hectares de florestas queimadas. Em 1972 o Professor Ronaldo Soares, da UFPR, defendeu sua tese de mestrado propondo a Fórmula de Monte Alegre com base em registros de incêndios florestais coletados a partir de 1965 na fazenda Monte Alegre (Klabin), em Telêmaco Borba-PR.</p>
 <p>A cálculo do índice é bastante simples, basta calcular o valor FMA do dia corrente e somar com o valor do dia anterior. O FMA é calculado através da seguinte expressão:</p>
@@ -281,7 +281,7 @@ dados_fma</code></pre>
   labs(x = &quot;Ano&quot;, y = &quot;Frequência&quot;, fill = &quot;Risco&quot;) +
   scale_y_continuous(breaks = seq(0.1, 1, 0.1), labels = scales::percent) +
   scale_fill_brewer(palette = &quot;Spectral&quot;, direction = -1) +
-  theme_bw()</code></pre>
+  theme_bw(16)</code></pre>
 <p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-9-1.svg" width="960" /></p>
 <p>Olhando para a frequência de risco dentro dos meses, fica claro o maior risco próximo do mês de agosto, como sugeriram os gráficos de frequências de chuva e umidade relativa.</p>
 <pre class="r"><code>dados_fma  %&gt;% 
@@ -294,7 +294,7 @@ dados_fma</code></pre>
   scale_x_continuous(breaks = 1:12, labels = format(ISOdate(2000, 1:12, 1), &quot;%b&quot;)) +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_brewer(palette = &quot;Spectral&quot;, direction = -1) +
-  theme_bw()</code></pre>
+  theme_bw(16)</code></pre>
 <p><img src="/post/2018-07-15-risco-de-incendio-pela-formula-de-monte-alegre_files/figure-html/unnamed-chunk-10-1.svg" width="960" /></p>
 <p>Bom, de maneira geral os gráficos não mostraram muita coisa nova. Todo mundo sabe que nos meses mais secos do ano o risco de incêndio é maior. De fato, o índice apenas dá um respaldo quantitativo para o senso comum. Uma vez calculado o índice, é possível confrontar com dados reais de incêndios e propor novos valores para as classes de risco com o objetivo de deixá-lo mais assertivo para uma certa região.</p>
 <p>Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.</p>
@@ -309,7 +309,7 @@ dados_fma</code></pre>
 ##  collate  Portuguese_Brazil.1252      
 ##  ctype    Portuguese_Brazil.1252      
 ##  tz       America/Sao_Paulo           
-##  date     2018-12-31                  
+##  date     2019-01-01                  
 ## 
 ## - Packages --------------------------------------------------------------
 ##  package      * version  date       lib source        
