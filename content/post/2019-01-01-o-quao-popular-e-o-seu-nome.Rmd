@@ -106,7 +106,7 @@ Também podemos ver a distribuição espacial pelos estados do Brasil.
 
 ```{r, dev="png"}
 eliza_estado %>% 
-  left_join(brmap_estado, by = c("localidade_nome" = "estado_nome")) %>% 
+  left_join(brmap_estado_simples, by = c("localidade_nome" = "estado_nome")) %>% 
   ggplot(aes(fill = frequencia)) +
     geom_sf(color = "white") +
     scale_fill_distiller(palette = "Purples", direction = 1) +
@@ -184,7 +184,7 @@ maria_freq %>%
     guides(fill = guide_colorbar(barwidth = 15, title.position = "top"))
 ```
 
-A segunda função presente no pacote acesso o rank dos nomes mais populares por sexo, década de nascimento e localidade.
+A segunda função presente no pacote acessa o rank dos nomes mais populares por sexo, década de nascimento e localidade.
 
 ```{r, fig.width=16, fig.height=10}
 rank_sexo <- bind_rows(brnome_rank(sexo = "f"), brnome_rank(sexo = "m"))

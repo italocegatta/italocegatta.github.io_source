@@ -41,10 +41,6 @@ pacman::p_load(readr, dplyr, tidyr, forcats, sf, geosphere, brmap, ggplot2, ggre
 pacman::p_load_gh("italocegatta/brmap")
 ```
 
-```{r,  include=FALSE}
-brmap_estado <- brmap::brmap_estado
-```
-
 Os dados originais estão disponíveis neste [link](https://sidra.ibge.gov.br/tabela/1852), fiz apenas adequações porque o IBGE insiste em mesclar células nas tabelas disponibilizadas. Já nesta tabela você consegue olhar para o Estado que você mora e analisar quanto dos residentes nasceram em outros Estados. Mas o objetivo é enxergar isso de forma gráfica para ampliar a percepção dos dados.
 
 ```{r}
@@ -84,7 +80,7 @@ estados_interesse
 Preparando para o mapa, vamos pegar as coordenadas dos centroides de cada Estado.
 
 ```{r}
-estado_cent <- brmap_estado %>% 
+estado_cent <- brmap_estado_simples %>% 
   st_centroid() %>% 
   cbind(., st_coordinates(.)) %>% 
   st_set_geometry(NULL) %>% 
@@ -121,7 +117,7 @@ fluxo_linha
 Para deixar o gráfico um pouco mais bonito, vamos dar cor ao valor que estamos estudando. Mas agora a feição será o polígono que representa o Estado de residentes.
 
 ```{r}
-fluxo_poligono <- brmap_estado %>% 
+fluxo_poligono <- brmap_estado_simples %>% 
   left_join(df, by =  c("estado_nome" = "reside")) %>% 
   rename(reside = estado_nome) %>% 
   filter(nasce %in% estados_interesse) %>% 
@@ -137,7 +133,7 @@ Como exemplo vamos interpretar as informações de Roraima: do total de resident
 
 ```{r, dev="png"}
 ggplot() +
-  geom_sf(data = brmap_estado, color = "white", fill = "grey80", size = 0.3) +
+  geom_sf(data = brmap_estado_simples, color = "white", fill = "grey80", size = 0.3) +
   geom_sf(data = fluxo_poligono, aes(fill = valor), color = "white", size = 0.3) +
   geom_sf(data = fluxo_linha, color = "cyan", size = 0.3) +
   geom_label_repel(
