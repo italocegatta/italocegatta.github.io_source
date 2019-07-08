@@ -45,7 +45,8 @@ Vamos agora adicionar a referência espacial aos dados utilizando os polígonos 
 
 ```{r}
 estados_focos <-  focos %>% 
-  left_join(brmap_estado_simples, by = c("sigla" = "estado_sigla"))
+  left_join(brmap_estado_simples, by = c("sigla" = "estado_sigla")) %>% 
+  st_as_sf()
 
 estados_focos
 ```

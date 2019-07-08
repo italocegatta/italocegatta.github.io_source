@@ -27,8 +27,8 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [author]
   name = "Ítalo Cegatta"
   bio = "R, Floresta e Data Science"
-  job = "Suzano Papel e Celulose"
-  location = "Itapetininga-SP"
+  job = "Suzano S.A."
+  location = "Americana-SP"
   picture = "http://i.imgur.com/9MOS3vs.png"
 
 # Menu Configuration

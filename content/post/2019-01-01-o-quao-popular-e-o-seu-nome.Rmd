@@ -57,11 +57,11 @@ brnome_freq(nome = "eliza", sexo = "m")
 A pesquisa também pode ser feita para um determinado município ou estado. Neste caso, você precisa utilizar o código oficial do IBGE de localidades. Como exemplo, vamos ver os resultados para Cuiabá (`5103403`) e Mato Grosso (`51`).
 
 ```{r}
-brnome_freq(nome = "eliza", sexo  ="f", localidade_cod = 5103403)
+brnome_freq(nome = "eliza", localidade_cod = 5103403)
 ```
 
 ```{r}
-brnome_freq(nome = "eliza", sexo  ="f", localidade_cod = 51)
+brnome_freq(nome = "eliza", localidade_cod = 51)
 ```
 
 Para consultar os códigos das localidades, o pacote disponibiliza um dataframe auxiliar `localidades`.
@@ -91,10 +91,10 @@ Primeiro vamos analisar a frequência do nome pela década de nascimento somando
 
 ```{r}
 eliza_estado %>% 
-  group_by(decada_nascimento) %>% 
+  group_by(nascimento_decada) %>% 
   summarise(frequencia = sum(frequencia)) %>% 
-  ggplot(aes(decada_nascimento, frequencia)) +
-    geom_line(size = 2) +
+  ggplot(aes(nascimento_decada, frequencia)) +
+    geom_line(size = 1) +
     geom_point(shape = 21, color = "white", fill =  "#80b1d3", size = 7, stroke = 2) +
     labs(x = "Década de nascimento", y = "Frequência do nome Eliza") +
     scale_x_continuous(breaks = seq(1900, 2020, 10)) + 
@@ -107,6 +107,7 @@ Também podemos ver a distribuição espacial pelos estados do Brasil.
 ```{r, dev="png"}
 eliza_estado %>% 
   left_join(brmap_estado_simples, by = c("localidade_nome" = "estado_nome")) %>% 
+  st_as_sf() %>% 
   ggplot(aes(fill = frequencia)) +
     geom_sf(color = "white") +
     scale_fill_distiller(palette = "Purples", direction = 1) +
@@ -114,6 +115,46 @@ eliza_estado %>%
     theme_bw(16) +
     theme(legend.position = "bottom", legend.justification = "right") +
     guides(fill = guide_colorbar(barwidth = 15, title.position = "top"))
+```
+
+A segunda função presente no pacote acessa o rank dos nomes mais populares por sexo, década de nascimento e localidade.
+
+```{r}
+rank_decada <- map_dfr(seq(1930, 2000, 10), ~brnome_rank(decada = .x))
+
+rank_decada %>%
+  ggplot(aes(decada, ranking, fill = frequencia, label = nome)) +
+  geom_line(aes(group = nome), alpha = 0.5) +
+  geom_label(color = "black", size = 3) +
+  #facet_wrap(~sexo, labeller = labeller(sexo = c("F" = "Feminino", "M" = "Masculino"))) +
+  labs(x = "Décade de nascimento", y = "Ranking", fill = "Frequência") +
+  scale_x_continuous(breaks = seq(1930, 2000, 10)) +
+  scale_y_reverse(breaks = 1:20) +
+  scale_fill_distiller(
+    palette = "PuBuGn", direction = 1, 
+    labels = scales::unit_format(unit = "k", scale = 1e-3)
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.justification = "right") +
+  guides(fill = guide_colorbar(barwidth = 20, title.position = "top"))
+```
+
+Para finalizar, vamos fazer um gráfico com os nomes mais frequentes em forma de nuvem de palavras.
+
+```{r}
+top_nomes <- bind_rows(
+  brnome_rank(sexo = "f"),
+  brnome_rank(sexo = "m")
+)
+  
+set.seed(1)
+wordcloud(top_nomes$nome, top_nomes$frequencia, scale=c(8, 1))
+```
+
+Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
+
+```{r}
+sessioninfo::session_info(c("readr", "dplyr", "purrr", "tidyr", "ggplot2", "forcats", "brmap", "brnome", "wordcloud"))
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -182,49 +223,4 @@ maria_freq %>%
     theme_bw(16) +
     theme(legend.position = "bottom", legend.justification = "right") +
     guides(fill = guide_colorbar(barwidth = 15, title.position = "top"))
-```
-
-A segunda função presente no pacote acessa o rank dos nomes mais populares por sexo, década de nascimento e localidade.
-
-```{r, fig.width=16, fig.height=10}
-rank_sexo <- bind_rows(brnome_rank(sexo = "f"), brnome_rank(sexo = "m"))
-
-rank_sexo %>%
-  ggplot(aes(decada_nascimento, rank, fill = frequencia, label = nome)) +
-  geom_line(aes(group = nome), alpha = 0.5) +
-  geom_label(color = "black", size = 3) +
-  facet_wrap(~sexo, labeller = labeller(sexo = c("F" = "Feminino", "M" = "Masculino"))) +
-  labs(x = "Décade de nascimento", y = "Ranking", fill = "Frequência") +
-  scale_y_reverse(breaks = 1:20) +
-  scale_fill_distiller(
-    palette = "PuBuGn", direction = 1, 
-    labels = scales::unit_format(unit = "k", scale = 1e-3)
-  ) +
-  theme_bw(18) +
-  theme(legend.position = "bottom", legend.justification = "right") +
-  guides(fill = guide_colorbar(barwidth = 20, title.position = "top"))
-```
-
-A consulta do rank também pode ser feita por localidade e década, como por exemplo os nomes mais comuns em Cuiabá na década de 1990.
-
-```{r}
-brnome_rank(sexo = "f", localidade_cod = 5103403, decada_nascimento = 1990) %>% 
-  select(nome, localidade_nome, frequencia, rank)
-```
-
-Para finalizar, vamos fazer um gráfico com os nomes mais frequentes em forma de nuvem de palavras.
-
-```{r}
-top_nomes <- rank_sexo %>% 
-  group_by(nome) %>% 
-  summarise(frequencia = sum(frequencia))
-
-set.seed(1)
-wordcloud(top_nomes$nome, top_nomes$frequencia, scale=c(8, 1))
-```
-
-Caso tenha alguma dúvida ou sugestão sobre o post, fique à vontade para fazer um comentário ou me contatar por E-mail.
-
-```{r}
-sessioninfo::session_info(c("readr", "dplyr", "purrr", "tidyr", "ggplot2", "forcats", "brmap", "brnome", "wordcloud"))
 ```
