@@ -7,7 +7,7 @@ showActions:    false
 toc: false
 ---
 
-Sou engenheiro florestal formado pela Universidade de São ([ESALQ/USP](http://www4.esalq.usp.br/)) e trabalho na [Suzano S.A.](http://www.suzano.com.br/), em Americana-SP. Grande parte das minhas atividades estão relacionadas à métodos computacionais aplicados à pesquisa florestal.
+Sou engenheiro florestal formado pela Universidade de São Paulo ([ESALQ/USP](http://www4.esalq.usp.br/)) e trabalho na [Suzano S.A.](http://www.suzano.com.br/), em Americana-SP. Grande parte das minhas atividades estão relacionadas à métodos computacionais aplicados à pesquisa florestal.
 
 Durante a graduação tive a sorte de me engajar em diversos projetos de pesquisa e em um deles conheci o [Software R](https://cran.r-project.org/). Desde então, venho adquirindo experiência no desenvolvimento de rotinas para resolução problemas relacionados às ciências florestais.
 
