@@ -1,0 +1,122 @@
+---
+title: "Como um cientista de dados pesquisa o carro que quer comprar?"
+date: 2019-09-08
+author: Ítalo Cegatta
+tags:
+  - dplyr
+  - fipe
+categories:
+  - Data Science
+thumbnailImage: "http://i.imgur.com/1gZcM9L.png"
+coverImage: "http://i.imgur.com/d1eBDPc.png"
+coverCaption:
+thumbnailImagePosition: top
+metaAlignment: center
+coverMeta: out
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+Meu propósito com este post é responder uma pergunta bem simples: como se dá a desvalorização dos carros hatchs no Brasil?
+
+Para isso vamos utlizar a base de dados da [Tabela Fipe](https://veiculos.fipe.org.br/) com o preço médio de venda dos carros hatchs de algumas marcas de 20|| à 2018. O download dos dados foi feito com o pacote [fipe](https://italocegatta.github.io/fipe/) e você pode alterar os parâmetros para fazer a análise de acordo com as suas necessidades.
+
+Selecionei alguns carros hatchs arbitrariamente com modelo de lançamento entre 2015 e 2018. As datas de referencia foram de janeiro de 2014 até agosto de 2019. Note que na lista dos carros desejados eu utilizei algumas marcações em `RegEx` para buscar apenas os modelos hatchs e desconciderar os sedans. Essa consulta demora um pouco pois é bem extensa, por isso eu já deixei uma planilha pronta com o resultado.
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(readr, dplyr, fipe, skimr, deflateBR, lubridate, ggplot2, ggridges, forcats)
+```
+
+```{r eval=FALSE}
+hatchs <- c(
+  "^kwid", "^mobi", "^up!",
+  "^hb20[\\s|x]", "^march",
+  "^gol\\s", "^onix", "^sandero",
+  "^ka (?!.*sed)", "^argo", "^etios (?!.*sed)",
+  "^polo", "^fox",
+  "^yaris (?!.*sed)",
+  "^fit"
+)
+
+# Demora um pouco, recomendo importar o arquivo com os dados já baixados
+base_hatch <- fipe_vehicle(
+  model = hatchs,
+  year = c(0, 2019, 2018, 2017, 2016, 2015),
+  date = seq.Date(as.Date("2014-01-01"), as.Date("2019-08-01"), by = "1 months"),
+  progress = TRUE, parallel = TRUE
+)
+```
+
+```{r}
+base_hatch <- read_csv2("https://raw.githubusercontent.com/italocegatta/italocegatta.github.io_source/master/content/dados/base_hatch.csv")
+
+base_hatch
+```
+
+Dando uma geral pela base, temos 9 montadoras, 300 modelos de carros e 6 diferentes anos de lançamento.
+
+```{r}
+skim(base_hatch)
+```
+
+Como o foco desta análise é a variação do preço, vou fazer uma coisa básica, porém esquecida por muita gente que quer comprar preços de datas diferentes, que é descontar a famosa inflação e trazer os valores para uma base única de referencia. Para isso vamos usar o pacote [deflateBR](https://github.com/meirelesff/deflatebr/) que corrige o valor de qualquer data para uma referência desejada. Vamos deixar todos os valores com referencia a agosto de 2019. Ou seja, R\$ 50000 em 2015 equivalem a R\$ `r round(deflate(50000, as.Date("2015-01-01"), "08/2019"))` em 2019 se considerarmos o efeito da inflação. Vamos utilizar o IPCA como indice de referência.
+
+```{r}
+base_hatch_ipca <- base_hatch %>% 
+  mutate(price_ipca = deflate(price, date, "08/2019", "ipca"))
+
+base_hatch_ipca
+```
+
+A primeira coisa que eu gostaria de ver é a diferença entre o carro 0 km e o que acabou de sair da concessionária e tem menos de 1 anos de uso. Para isso vou filtrar os carros com mais de 1 ano de diferença entre o ano de referência e o ano do modelo.
+
+```{r, cache=TRUE}
+delta_0km <- base_hatch_ipca %>% 
+  rowwise() %>% 
+  filter(year %in% c(year(date), year(date) + 1) | year == "0 km") %>%
+  ungroup() %>% 
+  left_join(
+    .,
+    filter(., year == "0 km") %>% 
+      select(model, make, date, price_ipca_0km = price_ipca) 
+  ) %>% 
+  group_by(model, year) %>%
+  mutate(
+    mes_lancado = row_number(date),
+    delta = price_ipca - price_ipca_0km
+  ) %>% 
+  ungroup() %>% 
+  filter(delta != 0)
+
+delta_0km
+```
+
+```{r}
+delta_0km %>% 
+  ggplot(aes(mes_lancado, delta, group = interaction(model, year))) +
+    geom_line(alpha = 0.5) +
+    geom_smooth(aes(group = 1), color = "red")
+```
+
+```{r, fig.width=8}
+delta_0km %>% 
+  mutate(mes_lancado = factor(mes_lancado)) %>% 
+  ggplot(aes(delta, mes_lancado)) +
+    stat_density_ridges(alpha = 0.5, quantile_lines = TRUE, quantiles = 2) +
+    scale_x_continuous(limits = c(-13000, 0)) +
+    theme_bw()
+```
+
+```{r, fig.width=16}
+delta_0km %>% 
+  mutate(mes_lancado = factor(mes_lancado)) %>% 
+  ggplot(aes(delta, mes_lancado)) +
+    stat_density_ridges(alpha = 0.5, quantile_lines = TRUE, quantiles = 2) +
+    facet_wrap(~make) +
+    scale_x_continuous(limits = c(-13000, 0)) +
+    theme_bw()
+```
+
